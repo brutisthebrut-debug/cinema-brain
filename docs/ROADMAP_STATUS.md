@@ -18,54 +18,40 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 - Taste-engine foundation: versioned weights, trait taxonomy, reaction parsing, profile generation
 - Integrated architecture: typed cross-layer contracts and 10x review gates
 - Durable learning ledger: frozen recommendations, score components, availability snapshots, outcomes, and prediction error
-- Metadata foundation: provider-neutral contract, deterministic local cache, identity checks, and refresh behavior
-- Evidence Graph foundation:
-  - canonical trait registry with alias collision protection
-  - immutable provenance-aware evidence records
-  - duplicate-evidence rejection
-  - positive and negative evidence aggregation
-  - preserved conflicts rather than silent averaging
-  - confidence based on agreement and evidence volume
-  - strongest-source traceability
-- Evidence persistence:
-  - SQLite adapter for canonical Evidence records
-  - deterministic duplicate protection
-  - round-trip graph reconstruction
-  - model-version filtering and evidence counts
-- Evidence-backed Cinematic DNA integration:
-  - explicit reaction phrases persist as film-level Evidence records
-  - phrase matching remains many-to-many while trait IDs remain canonical
-  - profile generation reads from the durable Evidence Graph
-  - evidence regeneration is idempotent by model version
-  - profile output exposes provenance, model versions, conflicts, and record counts
+- Metadata foundation and persistence: provider-neutral contracts, deterministic cache, canonical SQLite facts, identity safety, coverage, and staleness reporting
+- Evidence Graph foundation and persistence: canonical traits, immutable provenance, conflict preservation, durable storage, and model-version filtering
+- Evidence-backed Cinematic DNA: explicit reactions persist as film-level evidence and profile generation uses the durable graph
 
 ## Active validation
 
-Metadata intelligence persistence:
-- canonical `film_metadata` records keyed by film and provider
-- full provider payload retained for auditability
-- deterministic upsert and exact round-trip reconstruction
-- foreign-key protection against orphan metadata
-- coverage, missing-data, and staleness reporting
-- provider-to-database sync that preserves canonical identity
+Letterboxd RSS incremental synchronization:
+- official per-profile feed URL construction
+- parsing of diary/review/list items and Letterboxd extension fields
+- durable raw delta ledger with first-seen and last-seen timestamps
+- GUID-based deduplication
+- content-hash detection of edited feed items
+- hermetic XML fixture tests with no dependency on Letterboxd uptime
 
 ## Learned / changed
 
-- Film facts and interpretive taste traits must remain separate. Metadata storage owns facts; Evidence Graph owns claims about Daniel's preferences.
-- Cache files are useful transport and recovery artifacts, but SQLite is the queryable canonical metadata layer.
-- Staleness belongs to metadata and availability, not to Daniel's stable personal history.
-- Many descriptive signals are more useful than broad genres, but objective provider facts must remain distinguishable from inferred signals.
-- The old parallel taste aggregation path is gone; future explanations and recommendations consume persisted evidence.
+- The CSV export remains the historical source of truth and reconciliation mechanism.
+- The RSS feed is a low-friction delta stream for new diary entries, reviews, and lists; it is not a complete account mirror.
+- RSS events must be stored before normalization so later parser improvements can be replayed without losing source history.
+- Feed edits are tracked by content hash rather than creating duplicate watches.
+- Likes, watchlist changes, deletions, old history, and some later edits still require periodic CSV reconciliation.
+- TMDB was rejected after terms review because its current API restrictions create unacceptable risk for an AI-assisted recommendation project.
+- Metadata enrichment will continue through licensing-compatible open data behind the existing provider-neutral interface.
 
 ## Active next milestone
 
-Add the first real metadata provider adapter, enrich a bounded horror sample, and generate a coverage report before attempting whole-library enrichment.
+Normalize RSS diary/review events into canonical films and viewing records, with reconciliation rules that prevent duplicates when the same activity later appears in a CSV export.
 
 ## Then
 
-1. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
-2. Generate Horror DNA from explicit reactions plus enriched film evidence.
-3. Add typed mood/request parsing and candidate rejection audits.
-4. Build the first explainable ranking run against Daniel's watchlist.
-5. Add live availability verification only after ranking can operate independently of it.
-6. Delay dashboard work until recommendation quality and explanation quality are measurable.
+1. Add a licensing-compatible open metadata provider and enrich a bounded horror sample.
+2. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
+3. Generate Horror DNA from explicit reactions plus enriched film evidence.
+4. Add typed mood/request parsing and candidate rejection audits.
+5. Build the first explainable ranking run against Daniel's watchlist.
+6. Add live availability verification only after ranking can operate independently of it.
+7. Delay dashboard work until recommendation and explanation quality are measurable.

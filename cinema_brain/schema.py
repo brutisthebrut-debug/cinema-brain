@@ -64,6 +64,24 @@ CREATE TABLE IF NOT EXISTS list_entries (
     UNIQUE(source_path, source_row)
 );
 
+CREATE TABLE IF NOT EXISTS rss_items (
+    guid TEXT PRIMARY KEY,
+    feed_url TEXT NOT NULL,
+    link TEXT NOT NULL,
+    title TEXT NOT NULL,
+    film_title TEXT,
+    film_year INTEGER,
+    watched_date TEXT,
+    member_rating REAL CHECK(member_rating IS NULL OR (member_rating >= 0 AND member_rating <= 5)),
+    rewatch INTEGER NOT NULL DEFAULT 0,
+    description TEXT NOT NULL DEFAULT '',
+    published_at TEXT,
+    item_type TEXT NOT NULL CHECK(item_type IN ('diary', 'review', 'list')),
+    content_hash TEXT NOT NULL,
+    first_seen_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS film_metadata (
     film_key TEXT NOT NULL REFERENCES films(film_key) ON DELETE CASCADE,
     provider TEXT NOT NULL,
@@ -141,6 +159,8 @@ CREATE INDEX IF NOT EXISTS idx_films_watched ON films(watched);
 CREATE INDEX IF NOT EXISTS idx_films_watchlist ON films(watchlist);
 CREATE INDEX IF NOT EXISTS idx_films_rating ON films(rating);
 CREATE INDEX IF NOT EXISTS idx_events_film ON viewing_events(film_key);
+CREATE INDEX IF NOT EXISTS idx_rss_published ON rss_items(published_at);
+CREATE INDEX IF NOT EXISTS idx_rss_film ON rss_items(film_title, film_year);
 CREATE INDEX IF NOT EXISTS idx_metadata_provider ON film_metadata(provider);
 CREATE INDEX IF NOT EXISTS idx_metadata_retrieved ON film_metadata(retrieved_at);
 CREATE INDEX IF NOT EXISTS idx_trait_evidence_trait ON trait_evidence(trait_id);
