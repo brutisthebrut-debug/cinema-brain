@@ -53,7 +53,8 @@ def _json_request(url: str, *, timeout: float = 15.0) -> dict:
     )
     with urlopen(request, timeout=timeout) as response:  # nosec: B310 - fixed Wikimedia endpoint
         body = response.read()
-        content_encoding = response.headers.get("Content-Encoding", "")
+        headers = getattr(response, "headers", None)
+        content_encoding = headers.get("Content-Encoding", "") if headers is not None else ""
         return json.loads(_decode_response_body(body, content_encoding))
 
 
