@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import gzip
 import json
 import re
 import time
+import zlib
 from dataclasses import replace
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
@@ -22,6 +24,24 @@ def _normalize_title(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", value.casefold()).strip()
 
 
+def _decode_response_body(body: bytes, content_encoding: str = "") -> str:
+    """Decode HTTP response bytes, including servers that return compressed payloads.
+
+    Wikimedia may honor ``Accept-Encoding`` without urllib transparently decoding
+    the response. Magic-byte detection also protects against missing or incorrect
+    Content-Encoding headers.
+    """
+    encoding = content_encoding.casefold().strip()
+    if encoding == "gzip" or body.startswith(b"\x1f\x8b"):
+        body = gzip.decompress(body)
+    elif encoding == "deflate":
+        try:
+            body = zlib.decompress(body)
+        except zlib.error:
+            body = zlib.decompress(body, -zlib.MAX_WBITS)
+    return body.decode("utf-8")
+
+
 def _json_request(url: str, *, timeout: float = 15.0) -> dict:
     request = Request(
         url,
@@ -32,7 +52,9 @@ def _json_request(url: str, *, timeout: float = 15.0) -> dict:
         },
     )
     with urlopen(request, timeout=timeout) as response:  # nosec: B310 - fixed Wikimedia endpoint
-        return json.loads(response.read().decode("utf-8"))
+        body = response.read()
+        content_encoding = response.headers.get("Content-Encoding", "")
+        return json.loads(_decode_response_body(body, content_encoding))
 
 
 def _claim_entity_ids(entity: dict, property_id: str) -> list[str]:
@@ -66,11 +88,11 @@ def _runtime_minutes(entity: dict) -> int | None:
         except (KeyError, TypeError, ValueError):
             continue
         unit = str(value.get("unit", ""))
-        if unit.endswith("/Q7727") or unit == "1":  # minute or unspecified conventional minutes
+        if unit.endswith("/Q7727") or unit == "1":
             return max(1, round(amount))
-        if unit.endswith("/Q11574"):  # second
+        if unit.endswith("/Q11574"):
             return max(1, round(amount / 60))
-        if unit.endswith("/Q25235"):  # hour
+        if unit.endswith("/Q25235"):
             return max(1, round(amount * 60))
     return None
 
