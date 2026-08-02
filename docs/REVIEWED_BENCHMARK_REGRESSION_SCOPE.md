@@ -1,0 +1,1 @@
+Scope is limited to reviewed identity and deterministic trait preservation. Ranking calibration, embeddings, community priors, and full-library enrichment remain outside this milestone.

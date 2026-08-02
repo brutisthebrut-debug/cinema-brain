@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 
+from .golden_candidate_validation import validate_candidate, write_validation_report
 from .golden_promotion import write_promoted_dataset
 from .golden_review_workflow import build_review_template, compile_review_decisions
 from .ingest import ingest
@@ -33,6 +34,7 @@ def parser() -> argparse.ArgumentParser:
     template = sub.add_parser("golden-review-template"); template.add_argument("--benchmark", default="config/golden_horror_v1.json"); template.add_argument("--sample", default="reports/sample_review.json"); template.add_argument("--output", default="reports/golden_review.csv")
     compile_cmd = sub.add_parser("golden-review-compile"); compile_cmd.add_argument("--benchmark", default="config/golden_horror_v1.json"); compile_cmd.add_argument("--template", default="reports/golden_review.csv"); compile_cmd.add_argument("--reviewer", required=True); compile_cmd.add_argument("--output", default="reports/golden_review_decisions.json")
     promote = sub.add_parser("golden-promote"); promote.add_argument("--benchmark", default="config/golden_horror_v1.json"); promote.add_argument("--decisions", default="reports/golden_review_decisions.json"); promote.add_argument("--next-version", required=True); promote.add_argument("--output", required=True)
+    candidate = sub.add_parser("golden-candidate-validate"); candidate.add_argument("--source", required=True); candidate.add_argument("--candidate", required=True); candidate.add_argument("--decisions", required=True); candidate.add_argument("--output", default="reports/golden_candidate_validation.json")
     return p
 
 
@@ -58,4 +60,6 @@ def main() -> int:
     if args.command == "golden-review-template": print(json.dumps(build_review_template(Path(args.benchmark), Path(args.sample), Path(args.output)), indent=2)); return 0
     if args.command == "golden-review-compile": print(json.dumps(compile_review_decisions(Path(args.benchmark), Path(args.template), Path(args.output), reviewer=args.reviewer), indent=2)); return 0
     if args.command == "golden-promote": print(json.dumps(write_promoted_dataset(Path(args.benchmark), Path(args.decisions), Path(args.output), next_version=args.next_version), indent=2)); return 0
+    if args.command == "golden-candidate-validate":
+        report = validate_candidate(Path(args.source), Path(args.candidate), Path(args.decisions)); write_validation_report(report, Path(args.output)); print(json.dumps(report, indent=2)); return 0 if report["valid"] else 1
     return 2

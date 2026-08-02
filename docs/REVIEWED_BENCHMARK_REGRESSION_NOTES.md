@@ -1,0 +1,1 @@
+The evaluator is intentionally file-based and deterministic. It consumes the versioned benchmark plus the bounded sample-review JSON already produced by the real-data workflow. This keeps the regression gate reproducible and avoids coupling benchmark truth directly to a mutable database.
