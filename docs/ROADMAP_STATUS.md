@@ -20,9 +20,18 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
   - confidence based on agreement and evidence volume
   - strongest-source traceability
 
+## Active validation
+
+Evidence persistence integration:
+- SQLite adapter for canonical Evidence records
+- deterministic duplicate protection using the existing schema constraint
+- round-trip reconstruction of an Evidence Graph from durable storage
+- model-version filtering and evidence counts
+- real Undertone-style provenance test
+
 ## Active next milestone
 
-Persist Evidence Graph records into SQLite and connect existing taste-profile generation to the shared graph rather than maintaining parallel aggregation logic.
+Route existing taste-profile generation through the durable Evidence Graph so profile JSON, explanations, and later recommendations consume one aggregation path.
 
 ## Then
 
