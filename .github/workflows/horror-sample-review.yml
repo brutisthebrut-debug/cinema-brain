@@ -37,6 +37,8 @@ jobs:
       - name: Rebuild canonical database
         run: python -m cinema_brain --db cinema_brain.db ingest --data-dir data
       - name: Enrich bounded sample
+        id: enrich
+        continue-on-error: true
         run: |
           args=""
           if [ "${{ inputs.refresh }}" = "true" ]; then args="--refresh"; fi
@@ -44,25 +46,35 @@ jobs:
             --limit "${{ inputs.limit }}" $args \
             --output reports/horror_sample_enrichment.json
       - name: Extract and persist evidence
+        if: always()
+        continue-on-error: true
         run: |
           python -m cinema_brain --db cinema_brain.db extract-metadata-evidence \
             --limit "${{ inputs.limit }}" \
             --output reports/horror_sample_evidence.json
       - name: Validate database
+        if: always()
+        continue-on-error: true
         run: python -m cinema_brain --db cinema_brain.db validate
       - name: Build human review packet
+        if: always()
+        continue-on-error: true
         run: |
           python -m cinema_brain --db cinema_brain.db sample-review \
             --limit "${{ inputs.limit }}" \
             --output reports/horror_sample_review.json
       - name: Build editable review worksheet
+        if: always()
+        continue-on-error: true
         run: |
           python -m cinema_brain golden-review-template \
             --benchmark config/golden_horror_v1.json \
             --sample reports/horror_sample_review.json \
             --output reports/golden_horror_review.csv
       - name: Add review instructions and integrity manifest
+        if: always()
         run: |
+          mkdir -p reports
           cat > reports/REVIEW_INSTRUCTIONS.md <<'EOF'
           # Horror Golden Dataset Review
 
@@ -73,15 +85,13 @@ jobs:
           5. Return the completed CSV for compilation and guarded promotion.
 
           Approval is valid only when the provider identity remains an exact accepted title and release-year match.
+          Individual enrichment failures are diagnostic results and should not prevent review of successful films.
           EOF
-          sha256sum \
-            config/golden_horror_v1.json \
-            reports/horror_sample_enrichment.json \
-            reports/horror_sample_evidence.json \
-            reports/horror_sample_review.json \
-            reports/golden_horror_review.csv \
-            > reports/SHA256SUMS.txt
+          find config reports -type f \( -name 'golden_horror_v1.json' -o -name 'horror_sample_*.json' -o -name 'golden_horror_review.csv' \) \
+            -print0 | sort -z | xargs -0 -r sha256sum > reports/SHA256SUMS.txt
+          printf '{"enrichment_step_outcome":"%s"}\n' "${{ steps.enrich.outcome }}" > reports/WORKFLOW_STATUS.json
       - name: Upload private review bundle
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cinema-brain-horror-review-${{ github.run_number }}
@@ -89,10 +99,5 @@ jobs:
           if-no-files-found: error
           path: |
             config/golden_horror_v1.json
-            reports/horror_sample_enrichment.json
-            reports/horror_sample_evidence.json
-            reports/horror_sample_review.json
-            reports/golden_horror_review.csv
-            reports/REVIEW_INSTRUCTIONS.md
-            reports/SHA256SUMS.txt
+            reports/
             cinema_brain.db
