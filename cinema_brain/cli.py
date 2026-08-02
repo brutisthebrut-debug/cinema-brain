@@ -11,6 +11,7 @@ from .taste import build_taste_profile
 from .rss_sync import sync_rss, write_report
 from .metadata_enrichment import enrich_films, write_enrichment_report
 from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
+from .sample_review import build_sample_review
 from .wikidata_provider import WikidataProvider
 
 
@@ -21,7 +22,6 @@ def parser() -> argparse.ArgumentParser:
 
     i = sub.add_parser("ingest")
     i.add_argument("--data-dir", "--raw-dir", dest="data_dir", default="data")
-
     sub.add_parser("validate")
 
     r = sub.add_parser("report")
@@ -54,6 +54,10 @@ def parser() -> argparse.ArgumentParser:
     evidence.add_argument("--film-key", action="append", dest="film_keys", help="Canonical film key; repeat for a bounded review set.")
     evidence.add_argument("--limit", type=int, default=10)
     evidence.add_argument("--output", default="reports/metadata_evidence.json")
+
+    review = sub.add_parser("sample-review")
+    review.add_argument("--limit", type=int, default=10)
+    review.add_argument("--output", default="reports/sample_review.json")
     return p
 
 
@@ -83,27 +87,19 @@ def main() -> int:
         print(json.dumps(report.to_dict(), indent=2))
         return 0
     if args.command == "enrich-metadata":
-        provider = WikidataProvider()
-        report = enrich_films(
-            db,
-            provider,
-            Path(args.cache_dir),
-            film_keys=args.film_keys,
-            limit=args.limit,
-            refresh=args.refresh,
-        )
+        report = enrich_films(db, WikidataProvider(), Path(args.cache_dir), film_keys=args.film_keys, limit=args.limit, refresh=args.refresh)
         if args.output:
             write_enrichment_report(report, Path(args.output))
         print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
         return 1 if report.failed else 0
     if args.command == "extract-metadata-evidence":
-        report = extract_and_persist_metadata_evidence(
-            db,
-            film_keys=args.film_keys,
-            limit=args.limit,
-        )
+        report = extract_and_persist_metadata_evidence(db, film_keys=args.film_keys, limit=args.limit)
         if args.output:
             write_batch_report(report, Path(args.output))
         print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
         return 0
+    if args.command == "sample-review":
+        report = build_sample_review(db, Path(args.output), args.limit)
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return 1 if report["needs_review_count"] else 0
     return 2
