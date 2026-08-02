@@ -30,7 +30,7 @@ def parser() -> argparse.ArgumentParser:
     rss = sub.add_parser("sync-rss"); rss.add_argument("--username"); rss.add_argument("--feed-url"); rss.add_argument("--dry-run", action="store_true"); rss.add_argument("--output", default="reports/rss_sync.json")
     enrich = sub.add_parser("enrich-metadata"); enrich.add_argument("--provider", choices=("wikidata",), default="wikidata"); enrich.add_argument("--film-key", action="append", dest="film_keys"); enrich.add_argument("--limit", type=int, default=10); enrich.add_argument("--cache-dir", default="data/cache/metadata"); enrich.add_argument("--refresh", action="store_true"); enrich.add_argument("--output", default="reports/metadata_enrichment.json")
     evidence = sub.add_parser("extract-metadata-evidence"); evidence.add_argument("--film-key", action="append", dest="film_keys"); evidence.add_argument("--limit", type=int, default=10); evidence.add_argument("--output", default="reports/metadata_evidence.json")
-    review = sub.add_parser("sample-review"); review.add_argument("--limit", type=int, default=10); review.add_argument("--output", default="reports/sample_review.json")
+    review = sub.add_parser("sample-review"); review.add_argument("--film-key", action="append", dest="film_keys"); review.add_argument("--limit", type=int, default=10); review.add_argument("--output", default="reports/sample_review.json")
     template = sub.add_parser("golden-review-template"); template.add_argument("--benchmark", default="config/golden_horror_v1.json"); template.add_argument("--sample", default="reports/sample_review.json"); template.add_argument("--output", default="reports/golden_review.csv")
     compile_cmd = sub.add_parser("golden-review-compile"); compile_cmd.add_argument("--benchmark", default="config/golden_horror_v1.json"); compile_cmd.add_argument("--template", default="reports/golden_review.csv"); compile_cmd.add_argument("--reviewer", required=True); compile_cmd.add_argument("--output", default="reports/golden_review_decisions.json")
     promote = sub.add_parser("golden-promote"); promote.add_argument("--benchmark", default="config/golden_horror_v1.json"); promote.add_argument("--decisions", default="reports/golden_review_decisions.json"); promote.add_argument("--next-version", required=True); promote.add_argument("--output", required=True)
@@ -56,7 +56,7 @@ def main() -> int:
         report = extract_and_persist_metadata_evidence(db, film_keys=args.film_keys, limit=args.limit)
         if args.output: write_batch_report(report, Path(args.output))
         print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False)); return 0
-    if args.command == "sample-review": print(json.dumps(build_sample_review(db, Path(args.output), args.limit), indent=2, ensure_ascii=False)); return 0
+    if args.command == "sample-review": print(json.dumps(build_sample_review(db, Path(args.output), args.limit, args.film_keys), indent=2, ensure_ascii=False)); return 0
     if args.command == "golden-review-template": print(json.dumps(build_review_template(Path(args.benchmark), Path(args.sample), Path(args.output)), indent=2)); return 0
     if args.command == "golden-review-compile": print(json.dumps(compile_review_decisions(Path(args.benchmark), Path(args.template), Path(args.output), reviewer=args.reviewer), indent=2)); return 0
     if args.command == "golden-promote": print(json.dumps(write_promoted_dataset(Path(args.benchmark), Path(args.decisions), Path(args.output), next_version=args.next_version), indent=2)); return 0

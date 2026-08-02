@@ -5,14 +5,25 @@ import sqlite3
 from pathlib import Path
 
 
-def build_sample_review(db_path: Path, output: Path, limit: int = 10) -> dict:
+def build_sample_review(
+    db_path: Path,
+    output: Path,
+    limit: int = 10,
+    film_keys: list[str] | None = None,
+) -> dict:
     if limit <= 0:
         raise ValueError("limit must be positive")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     try:
+        where = ""
+        params: tuple = (limit,)
+        if film_keys:
+            placeholders = ",".join("?" for _ in film_keys)
+            where = f"WHERE f.film_key IN ({placeholders})"
+            params = (*film_keys, limit)
         rows = conn.execute(
-            """
+            f"""
             SELECT f.film_key, f.name, f.year, f.rating, f.liked,
                    m.provider, m.title AS provider_title, m.year AS provider_year,
                    m.confidence, m.runtime_minutes, m.genres_json,
@@ -22,12 +33,13 @@ def build_sample_review(db_path: Path, output: Path, limit: int = 10) -> dict:
             JOIN film_metadata m ON m.film_key=f.film_key
             LEFT JOIN trait_evidence e ON e.film_key=f.film_key
               AND e.source_type='metadata_inference'
+            {where}
             GROUP BY f.film_key, m.provider
             ORDER BY COALESCE(f.last_watched_date, f.first_watched_date, '') DESC,
                      f.name, m.provider
             LIMIT ?
             """,
-            (limit,),
+            params,
         ).fetchall()
     finally:
         conn.close()
@@ -59,6 +71,7 @@ def build_sample_review(db_path: Path, output: Path, limit: int = 10) -> dict:
 
     report = {
         "sample_size": len(films),
+        "requested_film_keys": film_keys or [],
         "exact_identity_count": sum(1 for film in films if film["identity_exact"]),
         "needs_review_count": sum(1 for film in films if not film["identity_exact"]),
         "films": films,

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       limit:
-        description: Number of recent films to review (keep bounded)
+        description: Maximum benchmark films to review (keep bounded)
         required: true
         default: "10"
       refresh:
@@ -36,21 +36,62 @@ jobs:
         run: python -m pytest -q
       - name: Rebuild canonical database
         run: python -m cinema_brain --db cinema_brain.db ingest --data-dir data
-      - name: Enrich bounded sample
+      - name: Select watched benchmark films
+        run: |
+          mkdir -p reports
+          python - <<'PY'
+          import json
+          import sqlite3
+          from pathlib import Path
+
+          benchmark = json.loads(Path("config/golden_horror_v1.json").read_text(encoding="utf-8"))
+          requested = [record["film_key"] for record in benchmark["records"]]
+          limit = max(1, int("${{ inputs.limit }}"))
+          conn = sqlite3.connect("cinema_brain.db")
+          try:
+              available = {
+                  row[0]
+                  for row in conn.execute(
+                      "SELECT film_key FROM films WHERE watched=1 AND film_key IN (%s)"
+                      % ",".join("?" for _ in requested),
+                      requested,
+                  )
+              }
+          finally:
+              conn.close()
+          selected = [key for key in requested if key in available][:limit]
+          missing = [key for key in requested if key not in available]
+          Path("reports/benchmark_film_keys.txt").write_text(
+              "".join(f"{key}\n" for key in selected), encoding="utf-8"
+          )
+          Path("reports/benchmark_selection.json").write_text(
+              json.dumps({"requested": requested, "selected": selected, "missing_from_library": missing}, indent=2),
+              encoding="utf-8",
+          )
+          if not selected:
+              raise SystemExit("No watched golden benchmark films were found in the canonical database")
+          PY
+      - name: Enrich bounded benchmark sample
         id: enrich
         continue-on-error: true
         run: |
-          args=""
-          if [ "${{ inputs.refresh }}" = "true" ]; then args="--refresh"; fi
+          mapfile -t film_keys < reports/benchmark_film_keys.txt
+          film_args=()
+          for key in "${film_keys[@]}"; do film_args+=(--film-key "$key"); done
+          refresh_args=()
+          if [ "${{ inputs.refresh }}" = "true" ]; then refresh_args+=(--refresh); fi
           python -m cinema_brain --db cinema_brain.db enrich-metadata \
-            --limit "${{ inputs.limit }}" $args \
+            "${film_args[@]}" "${refresh_args[@]}" \
             --output reports/horror_sample_enrichment.json
       - name: Extract and persist evidence
         if: always()
         continue-on-error: true
         run: |
+          mapfile -t film_keys < reports/benchmark_film_keys.txt
+          film_args=()
+          for key in "${film_keys[@]}"; do film_args+=(--film-key "$key"); done
           python -m cinema_brain --db cinema_brain.db extract-metadata-evidence \
-            --limit "${{ inputs.limit }}" \
+            "${film_args[@]}" \
             --output reports/horror_sample_evidence.json
       - name: Validate database
         if: always()
@@ -60,8 +101,11 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
+          mapfile -t film_keys < reports/benchmark_film_keys.txt
+          film_args=()
+          for key in "${film_keys[@]}"; do film_args+=(--film-key "$key"); done
           python -m cinema_brain --db cinema_brain.db sample-review \
-            --limit "${{ inputs.limit }}" \
+            "${film_args[@]}" \
             --output reports/horror_sample_review.json
       - name: Build editable review worksheet
         if: always()
@@ -78,6 +122,8 @@ jobs:
           cat > reports/REVIEW_INSTRUCTIONS.md <<'EOF'
           # Horror Golden Dataset Review
 
+          This bundle is selected from the versioned golden benchmark, not recent watches.
+
           1. Open `golden_horror_review.csv`.
           2. For each populated provider result, set `decision` to `approved`, `rejected`, or `quarantined`.
           3. Add a specific `reason` for every decision.
@@ -87,7 +133,7 @@ jobs:
           Approval is valid only when the provider identity remains an exact accepted title and release-year match.
           Individual enrichment failures are diagnostic results and should not prevent review of successful films.
           EOF
-          find config reports -type f \( -name 'golden_horror_v1.json' -o -name 'horror_sample_*.json' -o -name 'golden_horror_review.csv' \) \
+          find config reports -type f \( -name 'golden_horror_v1.json' -o -name 'horror_sample_*.json' -o -name 'benchmark_*.json' -o -name 'golden_horror_review.csv' \) \
             -print0 | sort -z | xargs -0 -r sha256sum > reports/SHA256SUMS.txt
           printf '{"enrichment_step_outcome":"%s"}\n' "${{ steps.enrich.outcome }}" > reports/WORKFLOW_STATUS.json
       - name: Upload private review bundle
