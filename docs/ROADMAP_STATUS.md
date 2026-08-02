@@ -21,37 +21,38 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 - Metadata foundation and persistence: provider-neutral contracts, deterministic cache, canonical SQLite facts, identity safety, coverage, and staleness reporting
 - Evidence Graph foundation and persistence: canonical traits, immutable provenance, conflict preservation, durable storage, and model-version filtering
 - Evidence-backed Cinematic DNA: explicit reactions persist as film-level evidence and profile generation uses the durable graph
+- Letterboxd RSS delta ledger: feed parsing, raw event preservation, GUID deduplication, edit detection, and hermetic fixture tests
 
 ## Active validation
 
-Letterboxd RSS incremental synchronization:
-- official per-profile feed URL construction
-- parsing of diary/review/list items and Letterboxd extension fields
-- durable raw delta ledger with first-seen and last-seen timestamps
-- GUID-based deduplication
-- content-hash detection of edited feed items
-- hermetic XML fixture tests with no dependency on Letterboxd uptime
+Canonical source reconciliation:
+- promotes RSS diary/review deltas into canonical films, viewing events, ratings, and reviews
+- matches existing CSV or manual viewing events by canonical film identity plus watched date
+- enriches an existing event rather than counting the same watch again
+- records every RSS-to-canonical match in a durable audit ledger
+- keeps source precedence explicit: CSV/manual identity wins; RSS fills missing fields
+- is idempotent when the same feed is processed repeatedly
+- includes regressions for an existing Undertone export row and a new Vicious RSS-only row
 
 ## Learned / changed
 
-- The CSV export remains the historical source of truth and reconciliation mechanism.
-- The RSS feed is a low-friction delta stream for new diary entries, reviews, and lists; it is not a complete account mirror.
-- RSS events must be stored before normalization so later parser improvements can be replayed without losing source history.
-- Feed edits are tracked by content hash rather than creating duplicate watches.
-- Likes, watchlist changes, deletions, old history, and some later edits still require periodic CSV reconciliation.
-- TMDB was rejected after terms review because its current API restrictions create unacceptable risk for an AI-assisted recommendation project.
-- Metadata enrichment will continue through licensing-compatible open data behind the existing provider-neutral interface.
+- CSV exports remain the historical snapshot and correction mechanism.
+- RSS is the near-real-time delta stream, not a complete account mirror.
+- Manual chat updates remain the fastest source for private reactions and context.
+- Source records should not overwrite one another; reconciliation links them to one canonical event.
+- Same-film and same-day is the safe initial viewing-event match rule. Ambiguous no-date events remain auditable rather than guessed.
+- RSS descriptions can create review records while still linking to the same canonical viewing event.
+- TMDB was rejected after terms review; metadata enrichment will use licensing-compatible open data behind the provider-neutral interface.
 
 ## Active next milestone
 
-Normalize RSS diary/review events into canonical films and viewing records, with reconciliation rules that prevent duplicates when the same activity later appears in a CSV export.
+Add a licensing-compatible open metadata provider, batch enrichment with safe resume and failure reporting, and a bounded horror sample before whole-library enrichment.
 
 ## Then
 
-1. Add a licensing-compatible open metadata provider and enrich a bounded horror sample.
-2. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
-3. Generate Horror DNA from explicit reactions plus enriched film evidence.
-4. Add typed mood/request parsing and candidate rejection audits.
-5. Build the first explainable ranking run against Daniel's watchlist.
-6. Add live availability verification only after ranking can operate independently of it.
-7. Delay dashboard work until recommendation and explanation quality are measurable.
+1. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
+2. Generate Horror DNA from explicit reactions plus enriched film evidence.
+3. Add typed mood/request parsing and candidate rejection audits.
+4. Build the first explainable ranking run against Daniel's watchlist.
+5. Add live availability verification only after ranking can operate independently of it.
+6. Delay dashboard work until recommendation and explanation quality are measurable.
