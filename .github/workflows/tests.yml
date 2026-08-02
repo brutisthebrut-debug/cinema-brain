@@ -21,12 +21,14 @@ jobs:
         run: pip install -e . && pip install pytest
       - name: Run unit tests
         run: pytest -q
-      - name: Ingest complete Letterboxd export
+      - name: Ingest complete Letterboxd export and manual watches
         run: python -m cinema_brain ingest | tee ingestion-summary.json
       - name: Validate normalized database
         run: python -m cinema_brain validate | tee validation.json
       - name: Generate baseline report
         run: python -m cinema_brain report --output reports/baseline_analysis.md
+      - name: Generate Daniel Cinematic DNA profile
+        run: python -m cinema_brain taste --output profiles/taste_profile.json > taste-summary.json
       - name: Display report
         run: cat reports/baseline_analysis.md
       - name: Upload private validation evidence
@@ -37,5 +39,7 @@ jobs:
             ingestion-summary.json
             validation.json
             reports/baseline_analysis.md
+            profiles/taste_profile.json
+            taste-summary.json
           if-no-files-found: error
           retention-days: 30
