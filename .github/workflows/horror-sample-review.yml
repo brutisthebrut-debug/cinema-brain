@@ -55,14 +55,44 @@ jobs:
           python -m cinema_brain --db cinema_brain.db sample-review \
             --limit "${{ inputs.limit }}" \
             --output reports/horror_sample_review.json
-      - name: Upload private review packet
+      - name: Build editable review worksheet
+        run: |
+          python -m cinema_brain golden-review-template \
+            --benchmark config/golden_horror_v1.json \
+            --sample reports/horror_sample_review.json \
+            --output reports/golden_horror_review.csv
+      - name: Add review instructions and integrity manifest
+        run: |
+          cat > reports/REVIEW_INSTRUCTIONS.md <<'EOF'
+          # Horror Golden Dataset Review
+
+          1. Open `golden_horror_review.csv`.
+          2. For each populated provider result, set `decision` to `approved`, `rejected`, or `quarantined`.
+          3. Add a specific `reason` for every decision.
+          4. Do not change benchmark identity fields to force a match.
+          5. Return the completed CSV for compilation and guarded promotion.
+
+          Approval is valid only when the provider identity remains an exact accepted title and release-year match.
+          EOF
+          sha256sum \
+            config/golden_horror_v1.json \
+            reports/horror_sample_enrichment.json \
+            reports/horror_sample_evidence.json \
+            reports/horror_sample_review.json \
+            reports/golden_horror_review.csv \
+            > reports/SHA256SUMS.txt
+      - name: Upload private review bundle
         uses: actions/upload-artifact@v4
         with:
-          name: cinema-brain-horror-sample-${{ github.run_number }}
+          name: cinema-brain-horror-review-${{ github.run_number }}
           retention-days: 30
           if-no-files-found: error
           path: |
+            config/golden_horror_v1.json
             reports/horror_sample_enrichment.json
             reports/horror_sample_evidence.json
             reports/horror_sample_review.json
+            reports/golden_horror_review.csv
+            reports/REVIEW_INSTRUCTIONS.md
+            reports/SHA256SUMS.txt
             cinema_brain.db
