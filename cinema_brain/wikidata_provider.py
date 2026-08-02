@@ -25,12 +25,7 @@ def _normalize_title(value: str) -> str:
 
 
 def _decode_response_body(body: bytes, content_encoding: str = "") -> str:
-    """Decode HTTP response bytes, including servers that return compressed payloads.
-
-    Wikimedia may honor ``Accept-Encoding`` without urllib transparently decoding
-    the response. Magic-byte detection also protects against missing or incorrect
-    Content-Encoding headers.
-    """
+    """Decode HTTP response bytes, including compressed payloads."""
     encoding = content_encoding.casefold().strip()
     if encoding == "gzip" or body.startswith(b"\x1f\x8b"):
         body = gzip.decompress(body)
@@ -140,20 +135,36 @@ class WikidataProvider:
             time.sleep(self.retry_delay * (2**attempt))
         raise RuntimeError("unreachable")
 
-    def _search(self, lookup: FilmLookup) -> list[dict]:
-        query = f"{lookup.title} {lookup.year}" if lookup.year else lookup.title
+    def _search_query(self, query: str) -> list[dict]:
         payload = self._request(
             {
                 "action": "wbsearchentities",
                 "search": query,
                 "language": "en",
                 "type": "item",
-                "limit": "10",
+                "limit": "20",
                 "format": "json",
                 "maxlag": "5",
             }
         )
         return list(payload.get("search", []))
+
+    def _search(self, lookup: FilmLookup) -> list[dict]:
+        """Search narrowly first, then broaden without weakening local validation."""
+        queries = []
+        if lookup.year is not None:
+            queries.append(f"{lookup.title} {lookup.year}")
+        queries.append(lookup.title)
+
+        results: list[dict] = []
+        seen: set[str] = set()
+        for query in queries:
+            for item in self._search_query(query):
+                entity_id = str(item.get("id", ""))
+                if entity_id and entity_id not in seen:
+                    seen.add(entity_id)
+                    results.append(item)
+        return results
 
     def _entities(self, entity_ids: list[str]) -> dict:
         if not entity_ids:
