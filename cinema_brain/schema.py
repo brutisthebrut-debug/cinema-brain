@@ -82,6 +82,18 @@ CREATE TABLE IF NOT EXISTS rss_items (
     last_seen_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS source_reconciliations (
+    source_type TEXT NOT NULL,
+    source_id TEXT NOT NULL,
+    canonical_type TEXT NOT NULL CHECK(canonical_type IN ('film','viewing_event','review','list_entry')),
+    canonical_id TEXT NOT NULL,
+    film_key TEXT NOT NULL REFERENCES films(film_key) ON DELETE CASCADE,
+    match_rule TEXT NOT NULL,
+    content_hash TEXT,
+    reconciled_at TEXT NOT NULL,
+    PRIMARY KEY(source_type, source_id)
+);
+
 CREATE TABLE IF NOT EXISTS film_metadata (
     film_key TEXT NOT NULL REFERENCES films(film_key) ON DELETE CASCADE,
     provider TEXT NOT NULL,
@@ -161,6 +173,7 @@ CREATE INDEX IF NOT EXISTS idx_films_rating ON films(rating);
 CREATE INDEX IF NOT EXISTS idx_events_film ON viewing_events(film_key);
 CREATE INDEX IF NOT EXISTS idx_rss_published ON rss_items(published_at);
 CREATE INDEX IF NOT EXISTS idx_rss_film ON rss_items(film_title, film_year);
+CREATE INDEX IF NOT EXISTS idx_reconcile_film ON source_reconciliations(film_key);
 CREATE INDEX IF NOT EXISTS idx_metadata_provider ON film_metadata(provider);
 CREATE INDEX IF NOT EXISTS idx_metadata_retrieved ON film_metadata(retrieved_at);
 CREATE INDEX IF NOT EXISTS idx_trait_evidence_trait ON trait_evidence(trait_id);
