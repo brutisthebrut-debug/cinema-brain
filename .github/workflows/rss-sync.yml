@@ -1,0 +1,86 @@
+name: cinema-brain-rss-sync
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cinema-brain-rss-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Cinema Brain
+        run: pip install -e .[test]
+
+      - name: Run unit tests
+        run: pytest -q
+
+      - name: Rebuild canonical database
+        run: python -m cinema_brain --db cinema_brain.db ingest --data-dir data
+
+      - name: Restore durable RSS ledger
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from cinema_brain.rss_state import import_rss_state
+          print(import_rss_state(Path("cinema_brain.db"), Path("data/rss/dmarlin-state.json")))
+          PY
+
+      - name: Fetch and reconcile dmarlin Letterboxd feed
+        run: python -m cinema_brain --db cinema_brain.db sync-rss --username dmarlin --output reports/rss_sync.json
+
+      - name: Validate synchronized database
+        run: python -m cinema_brain --db cinema_brain.db validate
+
+      - name: Generate reports and Cinematic DNA
+        run: |
+          python -m cinema_brain --db cinema_brain.db report --output reports/baseline_analysis.md
+          python -m cinema_brain --db cinema_brain.db taste --output profiles/taste_profile.json
+
+      - name: Export durable RSS ledger
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from cinema_brain.rss_state import export_rss_state
+          print(export_rss_state(Path("cinema_brain.db"), Path("data/rss/dmarlin-state.json")))
+          PY
+
+      - name: Commit RSS state changes
+        run: |
+          if git diff --quiet -- data/rss/dmarlin-state.json; then
+            echo "No RSS state changes."
+            exit 0
+          fi
+          git config user.name "cinema-brain-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/rss/dmarlin-state.json
+          git commit -m "Sync Letterboxd RSS state"
+          git push
+
+      - name: Upload validated private artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinema-brain-rss-sync-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            cinema_brain.db
+            reports/rss_sync.json
+            reports/baseline_analysis.md
+            profiles/taste_profile.json
