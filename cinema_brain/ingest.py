@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import sqlite3
+import unicodedata
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,53 +27,94 @@ def _norm_header(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "_", value.strip().lower()).strip("_")
 
 
+def _is_letterboxd_list(path: Path) -> bool:
+    try:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            return handle.readline().strip().lower().startswith("letterboxd list export")
+    except OSError:
+        return False
+
+
 def _read_rows(path: Path) -> tuple[list[dict[str, str]], tuple[str, ...]]:
+    """Read standard Letterboxd CSVs and their special two-section list format."""
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle)
-        headers = tuple(_norm_header(h or "") for h in (reader.fieldnames or []))
-        rows = []
-        for raw in reader:
-            rows.append({_norm_header(k or ""): (v or "").strip() for k, v in raw.items()})
+        lines = handle.readlines()
+
+    if lines and lines[0].strip().lower().startswith("letterboxd list export"):
+        start = next(
+            (i for i, line in enumerate(lines) if line.lower().startswith("position,")),
+            None,
+        )
+        if start is None:
+            return [], tuple()
+        reader = csv.DictReader(lines[start:])
+    else:
+        reader = csv.DictReader(lines)
+
+    headers = tuple(_norm_header(h or "") for h in (reader.fieldnames or []))
+    rows: list[dict[str, str]] = []
+    for raw in reader:
+        normalized = {
+            _norm_header(k or ""): (v or "").strip()
+            for k, v in raw.items()
+            if k is not None
+        }
+        if any(normalized.values()):
+            rows.append(normalized)
     return rows, headers
 
 
 def _sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def classify(path: Path, headers: Iterable[str]) -> str:
     hs = set(headers)
-    p = "/".join(part.lower() for part in path.parts)
+    parent_parts = {part.lower() for part in path.parts}
     name = path.name.lower()
 
-    if {"watched_date", "rewatch"} & hs and ("diary" in name or "date" in hs):
-        return "diary"
-    if "rating" in hs and "review" not in hs and ("ratings" in name or len(hs) <= 6):
-        return "ratings"
-    if "review" in hs or "review_text" in hs:
-        return "reviews"
-    if "watched" in name:
-        return "watched"
-    if "watchlist" in name:
-        return "watchlist"
-    if "liked" in p and ("film" in p or "films" in name):
+    if _is_letterboxd_list(path):
+        return "list"
+    if "liked" in parent_parts and name == "films.csv":
         return "liked_films"
-    if "profile" in name:
+    if "liked" in parent_parts:
+        return "auxiliary"
+    if name == "comments.csv":
+        return "auxiliary"
+    if name == "profile.csv":
         return "profile"
-    if "rank" in hs or "position" in hs or "lists" in p:
+    if name == "diary.csv" or "watched_date" in hs:
+        return "diary"
+    if name == "ratings.csv":
+        return "ratings"
+    if name == "reviews.csv" and "review" in hs:
+        return "reviews"
+    if name == "watchlist.csv":
+        return "watchlist"
+    if name == "watched.csv":
+        return "watched"
+    if "position" in hs and {"name", "year"}.issubset(hs):
         return "list"
     return "unknown"
 
 
 def discover(raw_dir: Path) -> list[Source]:
-    sources = []
+    sources: list[Source] = []
     for path in sorted(raw_dir.rglob("*.csv")):
         rows, headers = _read_rows(path)
-        sources.append(Source(path=path, headers=headers, kind=classify(path, headers), row_count=len(rows), sha256=_sha256(path)))
+        sources.append(
+            Source(
+                path=path,
+                headers=headers,
+                kind=classify(path, headers),
+                row_count=len(rows),
+                sha256=_sha256(path),
+            )
+        )
     return sources
 
 
@@ -86,16 +128,23 @@ def _pick(row: dict[str, str], *keys: str) -> str:
 
 def _year(value: str) -> int | None:
     try:
-        y = int(float(value))
-        return y if 1870 <= y <= 2200 else None
+        year = int(float(value))
+        return year if 1870 <= year <= 2200 else None
+    except (TypeError, ValueError):
+        return None
+
+
+def _integer(value: str) -> int | None:
+    try:
+        return int(float(value))
     except (TypeError, ValueError):
         return None
 
 
 def _rating(value: str) -> float | None:
     try:
-        r = float(value)
-        return r if 0 <= r <= 5 else None
+        rating = float(value)
+        return rating if 0 <= rating <= 5 else None
     except (TypeError, ValueError):
         return None
 
@@ -104,28 +153,40 @@ def _bool(value: str) -> int:
     return int(value.strip().lower() in {"1", "true", "yes", "y", "x"})
 
 
+def _title_slug(value: str) -> str:
+    ascii_value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
+    return re.sub(r"[^a-z0-9]+", "-", ascii_value.lower()).strip("-")
+
+
 def film_identity(row: dict[str, str]) -> tuple[str, str, int | None, str]:
+    """
+    Use title + year as the canonical export identity.
+
+    Letterboxd's diary and review exports contain activity-entry URLs, while
+    watched/ratings/list files contain film-page URLs. Using URL alone splits the
+    same movie into multiple records, so URLs are retained as evidence, not keys.
+    """
     name = _pick(row, "name", "title", "film_name")
     year = _year(_pick(row, "year", "film_year"))
     uri = _pick(row, "letterboxd_uri", "uri", "film_uri", "url")
-    if uri:
-        key = "lb:" + uri.rstrip("/").split("/")[-1].lower()
-    else:
-        slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-        key = f"title:{slug}:{year or 'unknown'}"
+    slug = _title_slug(name)
+    key = f"title:{slug}:{year or 'unknown'}"
     return key, name or "(unknown)", year, uri
 
 
 def _upsert_film(conn: sqlite3.Connection, row: dict[str, str], **flags) -> str:
     key, name, year, uri = film_identity(row)
-    conn.execute("""
+    conn.execute(
+        """
         INSERT INTO films(film_key, name, year, letterboxd_uri)
         VALUES (?, ?, ?, ?)
         ON CONFLICT(film_key) DO UPDATE SET
             name = CASE WHEN excluded.name != '(unknown)' THEN excluded.name ELSE films.name END,
             year = COALESCE(excluded.year, films.year),
-            letterboxd_uri = COALESCE(NULLIF(excluded.letterboxd_uri, ''), films.letterboxd_uri)
-        """, (key, name, year, uri or None))
+            letterboxd_uri = COALESCE(films.letterboxd_uri, NULLIF(excluded.letterboxd_uri, ''))
+        """,
+        (key, name, year, uri or None),
+    )
     for field, value in flags.items():
         if field in {"watched", "liked", "watchlist"} and value:
             conn.execute(f"UPDATE films SET {field}=1 WHERE film_key=?", (key,))
@@ -136,49 +197,116 @@ def _upsert_film(conn: sqlite3.Connection, row: dict[str, str], **flags) -> str:
 
 def ingest(raw_dir: Path, db_path: Path) -> dict:
     db_path.parent.mkdir(parents=True, exist_ok=True)
+    if db_path.exists():
+        db_path.unlink()
+
     conn = sqlite3.connect(db_path)
     conn.executescript(SCHEMA_SQL)
     now = datetime.now(timezone.utc).isoformat()
-    summary = {"files": 0, "rows": 0, "by_kind": {}}
+    summary: dict = {"files": 0, "rows": 0, "by_kind": {}}
 
     for source in discover(raw_dir):
         rows, headers = _read_rows(source.path)
         rel = str(source.path)
-        conn.execute("""INSERT OR REPLACE INTO source_files
+        conn.execute(
+            """
+            INSERT OR REPLACE INTO source_files
             (path, sha256, row_count, headers_json, classified_as, ingested_at)
-            VALUES (?, ?, ?, ?, ?, ?)""", (rel, source.sha256, source.row_count, json.dumps(headers), source.kind, now))
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (rel, source.sha256, source.row_count, json.dumps(headers), source.kind, now),
+        )
         summary["files"] += 1
         summary["rows"] += len(rows)
         summary["by_kind"][source.kind] = summary["by_kind"].get(source.kind, 0) + len(rows)
 
         for idx, row in enumerate(rows, start=2):
             kind = source.kind
-            if kind in {"profile", "unknown"}:
+            if kind in {"profile", "auxiliary", "unknown"}:
                 continue
-            rating = _rating(_pick(row, "rating"))
-            key = _upsert_film(conn, row, watched=kind in {"watched", "diary", "ratings", "reviews"}, liked=kind == "liked_films", watchlist=kind == "watchlist", rating=rating if kind in {"ratings", "diary", "reviews"} else None)
-            if kind == "diary":
-                conn.execute("""INSERT OR REPLACE INTO viewing_events
-                    (film_key, watched_date, rewatch, rating, tags, source_path, source_row)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)""", (key, _pick(row, "watched_date", "date"), _bool(_pick(row, "rewatch")), rating, _pick(row, "tags"), rel, idx))
-            elif kind == "reviews":
-                conn.execute("""INSERT OR REPLACE INTO reviews
-                    (film_key, review_date, rating, rewatch, review_text, tags, source_path, source_row)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""", (key, _pick(row, "review_date", "date"), rating, _bool(_pick(row, "rewatch")), _pick(row, "review", "review_text"), _pick(row, "tags"), rel, idx))
-            elif kind == "list":
-                conn.execute("""INSERT OR REPLACE INTO list_entries
-                    (film_key, list_name, rank_value, notes, source_path, source_row)
-                    VALUES (?, ?, ?, ?, ?, ?)""", (key, source.path.stem, _year(_pick(row, "rank", "position")), _pick(row, "notes", "description"), rel, idx))
+            if not _pick(row, "name", "title", "film_name"):
+                continue
 
-    conn.execute("""UPDATE films SET
-        watch_count = (SELECT COUNT(*) FROM viewing_events e WHERE e.film_key=films.film_key),
-        review_count = (SELECT COUNT(*) FROM reviews r WHERE r.film_key=films.film_key),
-        list_count = (SELECT COUNT(*) FROM list_entries l WHERE l.film_key=films.film_key),
-        first_watched_date = (SELECT MIN(watched_date) FROM viewing_events e WHERE e.film_key=films.film_key),
-        last_watched_date = (SELECT MAX(watched_date) FROM viewing_events e WHERE e.film_key=films.film_key)
-        """)
+            rating = _rating(_pick(row, "rating"))
+            key = _upsert_film(
+                conn,
+                row,
+                watched=kind in {"watched", "diary", "ratings", "reviews"},
+                liked=kind == "liked_films",
+                watchlist=kind == "watchlist",
+                rating=rating if kind in {"ratings", "diary", "reviews"} else None,
+            )
+
+            if kind == "diary":
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO viewing_events
+                    (film_key, watched_date, rewatch, rating, tags, source_path, source_row)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        key,
+                        _pick(row, "watched_date", "date"),
+                        _bool(_pick(row, "rewatch")),
+                        rating,
+                        _pick(row, "tags"),
+                        rel,
+                        idx,
+                    ),
+                )
+            elif kind == "reviews":
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO reviews
+                    (film_key, review_date, rating, rewatch, review_text, tags, source_path, source_row)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        key,
+                        _pick(row, "watched_date", "review_date", "date"),
+                        rating,
+                        _bool(_pick(row, "rewatch")),
+                        _pick(row, "review", "review_text"),
+                        _pick(row, "tags"),
+                        rel,
+                        idx,
+                    ),
+                )
+            elif kind == "list":
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO list_entries
+                    (film_key, list_name, rank_value, notes, source_path, source_row)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        key,
+                        source.path.stem,
+                        _integer(_pick(row, "position", "rank")),
+                        _pick(row, "description", "notes"),
+                        rel,
+                        idx,
+                    ),
+                )
+
+    conn.execute(
+        """
+        UPDATE films SET
+          watch_count = (SELECT COUNT(*) FROM viewing_events e WHERE e.film_key=films.film_key),
+          review_count = (SELECT COUNT(*) FROM reviews r WHERE r.film_key=films.film_key),
+          list_count = (SELECT COUNT(*) FROM list_entries l WHERE l.film_key=films.film_key),
+          first_watched_date = (SELECT MIN(watched_date) FROM viewing_events e WHERE e.film_key=films.film_key),
+          last_watched_date = (SELECT MAX(watched_date) FROM viewing_events e WHERE e.film_key=films.film_key)
+        """
+    )
     conn.commit()
     summary["films"] = conn.execute("SELECT COUNT(*) FROM films").fetchone()[0]
+    summary["watched_films"] = conn.execute("SELECT COUNT(*) FROM films WHERE watched=1").fetchone()[0]
+    summary["watchlist_films"] = conn.execute("SELECT COUNT(*) FROM films WHERE watchlist=1").fetchone()[0]
+    summary["rated_films"] = conn.execute("SELECT COUNT(*) FROM films WHERE rating IS NOT NULL").fetchone()[0]
+    summary["liked_films"] = conn.execute("SELECT COUNT(*) FROM films WHERE liked=1").fetchone()[0]
     summary["viewing_events"] = conn.execute("SELECT COUNT(*) FROM viewing_events").fetchone()[0]
+    summary["reviews"] = conn.execute("SELECT COUNT(*) FROM reviews").fetchone()[0]
+    summary["list_entries"] = conn.execute("SELECT COUNT(*) FROM list_entries").fetchone()[0]
     conn.close()
     return summary
