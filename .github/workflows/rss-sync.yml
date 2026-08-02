@@ -2,6 +2,10 @@ name: cinema-brain-rss-sync
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/rss-sync.yml"
 
 permissions:
   contents: write
