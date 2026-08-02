@@ -19,47 +19,36 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 - Integrated architecture: typed cross-layer contracts and 10x review gates
 - Durable learning ledger: frozen recommendations, score components, availability snapshots, outcomes, and prediction error
 - Metadata foundation: provider-neutral contract, deterministic local cache, identity checks, and refresh behavior
-- Evidence Graph foundation:
-  - canonical trait registry with alias collision protection
-  - immutable provenance-aware evidence records
-  - duplicate-evidence rejection
-  - positive and negative evidence aggregation
-  - preserved conflicts rather than silent averaging
-  - confidence based on agreement and evidence volume
-  - strongest-source traceability
-- Evidence persistence:
-  - SQLite adapter for canonical Evidence records
-  - deterministic duplicate protection
-  - round-trip graph reconstruction
-  - model-version filtering and evidence counts
-- Evidence-backed Cinematic DNA integration:
-  - explicit reaction phrases persist as film-level Evidence records
-  - phrase matching remains many-to-many while trait IDs remain canonical
-  - profile generation reads from the durable Evidence Graph
-  - evidence regeneration is idempotent by model version
-  - profile output exposes provenance, model versions, conflicts, and record counts
+- Evidence Graph foundation and persistence
+- Evidence-backed Cinematic DNA integration
+- Metadata intelligence persistence:
+  - canonical `film_metadata` records keyed by film and provider
+  - full provider payload retained for auditability
+  - deterministic upsert and exact reconstruction
+  - coverage and staleness reporting
+  - provider/cache-to-database sync
 
 ## Active validation
 
-Metadata intelligence persistence:
-- canonical `film_metadata` records keyed by film and provider
-- full provider payload retained for auditability
-- deterministic upsert and exact round-trip reconstruction
-- foreign-key protection against orphan metadata
-- coverage, missing-data, and staleness reporting
-- provider-to-database sync that preserves canonical identity
+First real metadata provider adapter:
+- TMDB v3 adapter behind the existing provider-neutral contract
+- bearer-token authentication with no credential committed to GitHub
+- guarded title/year matching
+- deterministic mapping of genres, directors, cast, countries, languages, runtime, and keywords
+- dependency-injected HTTP transport so CI never depends on the network
+- regression tests for exact-year matching, missing results, and missing credentials
 
 ## Learned / changed
 
-- Film facts and interpretive taste traits must remain separate. Metadata storage owns facts; Evidence Graph owns claims about Daniel's preferences.
-- Cache files are useful transport and recovery artifacts, but SQLite is the queryable canonical metadata layer.
-- Staleness belongs to metadata and availability, not to Daniel's stable personal history.
-- Many descriptive signals are more useful than broad genres, but objective provider facts must remain distinguishable from inferred signals.
-- The old parallel taste aggregation path is gone; future explanations and recommendations consume persisted evidence.
+- Film facts and interpretive taste traits remain separate.
+- Cache files are transport and recovery artifacts; SQLite is canonical metadata storage.
+- External provider tests must be hermetic. Live API checks belong in an optional integration job, not the required unit-test gate.
+- A provider credential is an operational dependency, not application data, and must remain outside the repository.
+- Whole-library enrichment will not begin until a bounded horror sample reports identity mismatches, misses, latency, and metadata coverage.
 
 ## Active next milestone
 
-Add the first real metadata provider adapter, enrich a bounded horror sample, and generate a coverage report before attempting whole-library enrichment.
+Run a bounded horror enrichment command through TMDB, cache, and canonical metadata storage; produce a machine-readable coverage and failure report.
 
 ## Then
 
