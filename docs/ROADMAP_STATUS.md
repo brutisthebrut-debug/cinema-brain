@@ -67,15 +67,31 @@ Future modules may specialize their domain models, but should reuse these capabi
 
 ## Active epic — Metadata Intelligence
 
+### Active validation: Wikidata provider and bounded enrichment
+
+The first licensing-compatible provider slice now includes:
+
+- a read-only Wikidata adapter using CC0 structured data
+- mandatory descriptive User-Agent headers and conservative request behavior
+- exact title, release-year, and film-type identity gates
+- retry/backoff for rate limits and transient Wikimedia failures
+- normalized genres, directors, cast, countries, languages, runtime, and main subjects
+- no API key or private credential requirement
+- bounded enrichment by explicit canonical film keys or a recent-watch limit
+- deterministic local metadata caching and canonical SQLite persistence
+- per-film miss and failure reporting without abandoning the rest of a batch
+- safe resume through the existing cache
+- hermetic provider and enrichment tests with no network dependency
+- a CLI command: `enrich-metadata`
+
 ### Current production sequence
 
-1. Select and implement a licensing-compatible open metadata provider.
-2. Add retry, rate-limit, cache, safe-resume, and failure-report behavior.
-3. Normalize genres, countries, languages, runtime, release facts, credits, and keywords.
-4. Enrich a bounded horror sample and manually review film identity matches.
-5. Convert selected facts and horror signals into provenance-aware Evidence records.
-6. Generate Horror DNA from explicit reactions plus enriched film evidence.
-7. Measure coverage, conflicts, stale records, evidence diversity, and pipeline reliability.
+1. Validate and merge the Wikidata provider and bounded enrichment service.
+2. Run a small real horror sample and manually review every identity match.
+3. Expand normalization and resolve any coverage gaps exposed by the sample.
+4. Convert selected facts and horror signals into provenance-aware Evidence records.
+5. Generate Horror DNA from explicit reactions plus enriched film evidence.
+6. Measure coverage, conflicts, stale records, evidence diversity, and pipeline reliability.
 
 ### Definition of done
 
@@ -98,7 +114,9 @@ Metadata Intelligence is complete when enrichment is replaceable, reproducible, 
 - A small versioned JSON RSS ledger provides durable, reviewable, replayable state while the database remains reproducible.
 - The first live workflow exposed missing test dependencies; the regression is now covered and the production sync passes.
 - CSV exports remain the historical correction mechanism; RSS is the incremental delta stream.
-- TMDB was rejected after terms review; metadata enrichment will use licensing-compatible open data behind the provider-neutral interface.
+- TMDB was rejected after terms review.
+- Wikidata structured data is CC0 and requires responsible API use, including a descriptive User-Agent, bounded requests, and backoff after rate limits.
+- Provider search cannot be trusted by title alone; exact release-year and film-type checks are mandatory before persistence.
 - Conversation, CLI, future dashboard, and other Daniel OS modules will consume one stable recommendation interface rather than duplicate ranking logic.
 - Durable vision, principles, decisions, release notes, debt, and ADRs now prevent important reasoning from living only in chat.
 
