@@ -1,17 +1,40 @@
-name: tests
+name: cinema-brain-ci
 
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
+  test-and-ingest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+          cache: pip
       - run: pip install -r requirements.txt
-      - run: pytest -q
+      - name: Run unit tests
+        run: pytest -q
+      - name: Ingest complete Letterboxd export
+        run: python -m cinema_brain ingest | tee ingestion-summary.json
+      - name: Validate normalized database
+        run: python -m cinema_brain validate | tee validation.json
+      - name: Generate baseline report
+        run: python -m cinema_brain report --output reports/baseline_analysis.md
+      - name: Display report
+        run: cat reports/baseline_analysis.md
+      - name: Upload private validation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinema-brain-baseline
+          path: |
+            ingestion-summary.json
+            validation.json
+            reports/baseline_analysis.md
+          if-no-files-found: error
+          retention-days: 30
