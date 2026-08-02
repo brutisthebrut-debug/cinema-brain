@@ -1,0 +1,108 @@
+{
+  "version": "horror-identity-v1",
+  "status": "seed",
+  "review_policy": "Only records with reviewed=true are release-gating truth. Seed records must be manually checked before promotion.",
+  "records": [
+    {
+      "film_key": "title:the-blair-witch-project:1999",
+      "canonical_title": "The Blair Witch Project",
+      "release_year": 1999,
+      "accepted_titles": ["Blair Witch Project"],
+      "entity_type": "film",
+      "hazards": ["article variation", "franchise title similarity"],
+      "expected_traits": ["found footage", "naturalistic realism", "isolation"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:the-thing:1982",
+      "canonical_title": "The Thing",
+      "release_year": 1982,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["same title different year", "remake"],
+      "expected_traits": ["creature feature", "isolation", "body horror"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:suspiria:1977",
+      "canonical_title": "Suspiria",
+      "release_year": 1977,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["same title remake"],
+      "expected_traits": ["supernatural", "occult"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:the-wicker-man:1973",
+      "canonical_title": "The Wicker Man",
+      "release_year": 1973,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["same title remake", "article variation"],
+      "expected_traits": ["folk horror", "isolation"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:the-fly:1986",
+      "canonical_title": "The Fly",
+      "release_year": 1986,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["same title different year", "remake"],
+      "expected_traits": ["body horror", "creature feature"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:the-ring:2002",
+      "canonical_title": "The Ring",
+      "release_year": 2002,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["international remake", "generic title"],
+      "expected_traits": ["supernatural", "psychological"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:rec:2007",
+      "canonical_title": "[REC]",
+      "release_year": 2007,
+      "accepted_titles": ["REC"],
+      "entity_type": "film",
+      "hazards": ["punctuation normalization", "short generic token"],
+      "expected_traits": ["found footage", "naturalistic realism", "isolation"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:let-the-right-one-in:2008",
+      "canonical_title": "Let the Right One In",
+      "release_year": 2008,
+      "accepted_titles": ["Låt den rätte komma in"],
+      "entity_type": "film",
+      "hazards": ["international title", "remake title similarity"],
+      "expected_traits": ["isolation"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:the-host:2006",
+      "canonical_title": "The Host",
+      "release_year": 2006,
+      "accepted_titles": ["Gwoemul"],
+      "entity_type": "film",
+      "hazards": ["generic title", "same title different year", "international title"],
+      "expected_traits": ["creature feature"],
+      "reviewed": false
+    },
+    {
+      "film_key": "title:undertone:2025",
+      "canonical_title": "Undertone",
+      "release_year": 2025,
+      "accepted_titles": [],
+      "entity_type": "film",
+      "hazards": ["recent obscure title", "limited provider coverage"],
+      "expected_traits": ["psychological", "found footage", "naturalistic realism"],
+      "reviewed": false,
+      "personal_relevance": "First explicit fear-evidence case; Daniel rated four stars and described sustained Blair-Witch-like creepiness."
+    }
+  ]
+}
