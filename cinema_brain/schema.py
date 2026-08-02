@@ -64,6 +64,24 @@ CREATE TABLE IF NOT EXISTS list_entries (
     UNIQUE(source_path, source_row)
 );
 
+CREATE TABLE IF NOT EXISTS film_metadata (
+    film_key TEXT NOT NULL REFERENCES films(film_key) ON DELETE CASCADE,
+    provider TEXT NOT NULL,
+    title TEXT NOT NULL,
+    year INTEGER,
+    confidence REAL NOT NULL CHECK(confidence >= 0 AND confidence <= 1),
+    runtime_minutes INTEGER CHECK(runtime_minutes IS NULL OR runtime_minutes > 0),
+    genres_json TEXT NOT NULL DEFAULT '[]',
+    directors_json TEXT NOT NULL DEFAULT '[]',
+    cast_json TEXT NOT NULL DEFAULT '[]',
+    countries_json TEXT NOT NULL DEFAULT '[]',
+    languages_json TEXT NOT NULL DEFAULT '[]',
+    keywords_json TEXT NOT NULL DEFAULT '[]',
+    retrieved_at TEXT NOT NULL,
+    payload_json TEXT NOT NULL,
+    PRIMARY KEY(film_key, provider)
+);
+
 CREATE TABLE IF NOT EXISTS trait_evidence (
     id INTEGER PRIMARY KEY,
     film_key TEXT NOT NULL REFERENCES films(film_key),
@@ -123,6 +141,8 @@ CREATE INDEX IF NOT EXISTS idx_films_watched ON films(watched);
 CREATE INDEX IF NOT EXISTS idx_films_watchlist ON films(watchlist);
 CREATE INDEX IF NOT EXISTS idx_films_rating ON films(rating);
 CREATE INDEX IF NOT EXISTS idx_events_film ON viewing_events(film_key);
+CREATE INDEX IF NOT EXISTS idx_metadata_provider ON film_metadata(provider);
+CREATE INDEX IF NOT EXISTS idx_metadata_retrieved ON film_metadata(retrieved_at);
 CREATE INDEX IF NOT EXISTS idx_trait_evidence_trait ON trait_evidence(trait_id);
 CREATE INDEX IF NOT EXISTS idx_trait_evidence_film ON trait_evidence(film_key);
 CREATE INDEX IF NOT EXISTS idx_recommendation_runs_created ON recommendation_runs(created_at);
