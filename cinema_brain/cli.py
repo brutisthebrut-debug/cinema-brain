@@ -9,6 +9,8 @@ from .report import build_report
 from .recommend import recommend
 from .taste import build_taste_profile
 from .rss_sync import sync_rss, write_report
+from .metadata_enrichment import enrich_films, write_enrichment_report
+from .wikidata_provider import WikidataProvider
 
 
 def parser() -> argparse.ArgumentParser:
@@ -38,6 +40,14 @@ def parser() -> argparse.ArgumentParser:
     rss.add_argument("--feed-url", help="Exact profile RSS URL; may also use LETTERBOXD_RSS_URL.")
     rss.add_argument("--dry-run", action="store_true", help="Fetch and parse without changing the database.")
     rss.add_argument("--output", default="reports/rss_sync.json", help="JSON sync report path; use an empty string to disable.")
+
+    enrich = sub.add_parser("enrich-metadata")
+    enrich.add_argument("--provider", choices=("wikidata",), default="wikidata")
+    enrich.add_argument("--film-key", action="append", dest="film_keys", help="Canonical film key; repeat for a bounded review set.")
+    enrich.add_argument("--limit", type=int, default=10, help="Maximum recent watched films when no film key is supplied.")
+    enrich.add_argument("--cache-dir", default="data/cache/metadata")
+    enrich.add_argument("--refresh", action="store_true")
+    enrich.add_argument("--output", default="reports/metadata_enrichment.json")
     return p
 
 
@@ -66,4 +76,18 @@ def main() -> int:
         write_report(report, Path(args.output) if args.output else None)
         print(json.dumps(report.to_dict(), indent=2))
         return 0
+    if args.command == "enrich-metadata":
+        provider = WikidataProvider()
+        report = enrich_films(
+            db,
+            provider,
+            Path(args.cache_dir),
+            film_keys=args.film_keys,
+            limit=args.limit,
+            refresh=args.refresh,
+        )
+        if args.output:
+            write_enrichment_report(report, Path(args.output))
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return 1 if report.failed else 0
     return 2
