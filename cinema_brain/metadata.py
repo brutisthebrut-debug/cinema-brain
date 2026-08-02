@@ -54,16 +54,29 @@ class MetadataCache:
         digest = hashlib.sha256(film_key.encode()).hexdigest()
         return self.root / provider / digest[:2] / f"{digest}.json"
 
+    def _quarantine(self, path: Path) -> None:
+        """Move an unreadable cache entry aside so the provider can refetch it."""
+        quarantine = path.with_suffix(path.suffix + ".corrupt")
+        counter = 1
+        while quarantine.exists():
+            quarantine = path.with_suffix(path.suffix + f".corrupt.{counter}")
+            counter += 1
+        path.replace(quarantine)
+
     def get(self, provider: str, film_key: str) -> FilmMetadata | None:
         path = self._path(provider, film_key)
         if not path.exists():
             return None
-        data = json.loads(path.read_text(encoding="utf-8"))
-        for key in ("genres", "directors", "cast", "countries", "languages", "keywords"):
-            data[key] = tuple(data.get(key, ()))
-        item = FilmMetadata(**data)
-        item.validate()
-        return item
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            for key in ("genres", "directors", "cast", "countries", "languages", "keywords"):
+                data[key] = tuple(data.get(key, ()))
+            item = FilmMetadata(**data)
+            item.validate()
+            return item
+        except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError, KeyError):
+            self._quarantine(path)
+            return None
 
     def put(self, item: FilmMetadata) -> FilmMetadata:
         item.validate()
