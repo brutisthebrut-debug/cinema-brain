@@ -64,8 +64,66 @@ CREATE TABLE IF NOT EXISTS list_entries (
     UNIQUE(source_path, source_row)
 );
 
+CREATE TABLE IF NOT EXISTS trait_evidence (
+    id INTEGER PRIMARY KEY,
+    film_key TEXT NOT NULL REFERENCES films(film_key),
+    trait_id TEXT NOT NULL,
+    polarity REAL NOT NULL CHECK(polarity >= -1 AND polarity <= 1),
+    strength REAL NOT NULL CHECK(strength >= 0),
+    confidence REAL NOT NULL CHECK(confidence >= 0 AND confidence <= 1),
+    source_type TEXT NOT NULL,
+    source_ref TEXT NOT NULL,
+    evidence_text TEXT,
+    model_version TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(film_key, trait_id, source_type, source_ref, model_version)
+);
+
+CREATE TABLE IF NOT EXISTS recommendation_runs (
+    id TEXT PRIMARY KEY,
+    created_at TEXT NOT NULL,
+    request_json TEXT NOT NULL,
+    model_version TEXT NOT NULL,
+    candidate_count INTEGER NOT NULL,
+    selected_film_key TEXT REFERENCES films(film_key),
+    predicted_score REAL,
+    confidence REAL,
+    explanation_json TEXT NOT NULL,
+    availability_json TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS recommendation_candidates (
+    run_id TEXT NOT NULL REFERENCES recommendation_runs(id) ON DELETE CASCADE,
+    film_key TEXT NOT NULL REFERENCES films(film_key),
+    rank_position INTEGER NOT NULL,
+    score REAL NOT NULL,
+    accepted INTEGER NOT NULL DEFAULT 0,
+    rejection_reasons_json TEXT NOT NULL DEFAULT '[]',
+    score_components_json TEXT NOT NULL,
+    PRIMARY KEY(run_id, film_key)
+);
+
+CREATE TABLE IF NOT EXISTS recommendation_outcomes (
+    run_id TEXT PRIMARY KEY REFERENCES recommendation_runs(id) ON DELETE CASCADE,
+    film_key TEXT NOT NULL REFERENCES films(film_key),
+    started INTEGER,
+    completed INTEGER,
+    actual_rating REAL CHECK(actual_rating IS NULL OR (actual_rating >= 0 AND actual_rating <= 5)),
+    scared INTEGER,
+    moved INTEGER,
+    comforted INTEGER,
+    bored INTEGER,
+    surprised INTEGER,
+    reaction_text TEXT,
+    recorded_at TEXT NOT NULL,
+    prediction_error REAL
+);
+
 CREATE INDEX IF NOT EXISTS idx_films_watched ON films(watched);
 CREATE INDEX IF NOT EXISTS idx_films_watchlist ON films(watchlist);
 CREATE INDEX IF NOT EXISTS idx_films_rating ON films(rating);
 CREATE INDEX IF NOT EXISTS idx_events_film ON viewing_events(film_key);
+CREATE INDEX IF NOT EXISTS idx_trait_evidence_trait ON trait_evidence(trait_id);
+CREATE INDEX IF NOT EXISTS idx_trait_evidence_film ON trait_evidence(film_key);
+CREATE INDEX IF NOT EXISTS idx_recommendation_runs_created ON recommendation_runs(created_at);
 """
