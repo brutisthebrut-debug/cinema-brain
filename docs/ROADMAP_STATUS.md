@@ -10,7 +10,7 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 - Every subsystem remains replaceable behind typed contracts.
 - Engine quality comes before dashboard work.
 - Every completed milestone records what was learned, which assumptions changed, and what duplicate work became unnecessary.
-- No item is marked complete until the full real-data GitHub Actions pipeline passes and the pull request is merged into `main`.
+- No item is marked complete until the full real-data validation pipeline passes.
 
 ## Completed
 
@@ -21,37 +21,40 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 - Evidence Graph foundation, provenance, conflicts, and durable storage
 - Letterboxd RSS raw delta ledger with parsing, deduplication, and edit detection
 - Canonical CSV/RSS/manual reconciliation with source precedence and replay protection
+- Safe live Letterboxd RSS synchronization command for `dmarlin`
 
 ## Active validation
 
-Safe live Letterboxd RSS synchronization:
-- `sync-rss` CLI command
-- configuration through username, exact feed URL, or environment variables
-- dry-run mode that fetches and parses without database writes
-- explicit rejection of non-Letterboxd feed URLs
-- durable JSON sync reports
-- raw ingestion followed by canonical reconciliation in one operation
-- missing-database protection
-- idempotency regression coverage
+Controlled RSS automation:
+- manual GitHub Actions workflow for `dmarlin`
+- full unit tests before any live state mutation
+- canonical database rebuilt from CSV/manual sources on every run
+- versioned JSON RSS ledger restored before synchronization
+- live feed fetch, reconciliation, and database validation
+- baseline report and Cinematic DNA regeneration
+- only the auditable RSS ledger is committed; SQLite remains a private artifact
+- concurrency protection and no state commit after a failed step
+- RSS state import/export round-trip tests
 
 ## Learned / changed
 
-- CSV exports remain the historical snapshot and correction mechanism.
-- RSS is the near-real-time delta stream, not a complete account mirror.
-- Manual chat updates remain the fastest source for private reactions and context.
-- Feed configuration belongs outside committed code; a public Letterboxd username is sufficient for standard profile feeds.
-- Dry-run and structured reports are required before any recurring automation is introduced.
+- A workflow artifact alone is not durable state because artifacts expire.
+- Committing a generated SQLite database would be opaque and merge-hostile.
+- A small versioned JSON RSS ledger provides durable, reviewable, replayable state while the database remains reproducible.
+- Automatic scheduling should wait until the first manual live sync and state diff are reviewed.
+- CSV exports remain the historical correction mechanism; RSS is the incremental delta stream.
 - TMDB was rejected after terms review; metadata enrichment will use licensing-compatible open data behind the provider-neutral interface.
 
 ## Active next milestone
 
-Add a licensing-compatible open metadata provider, batch enrichment with safe resume and failure reporting, and a bounded horror sample before whole-library enrichment.
+Run and review the first live `dmarlin` RSS synchronization. After validation, add a conservative recurring schedule and failure visibility.
 
 ## Then
 
-1. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
-2. Generate Horror DNA from explicit reactions plus enriched film evidence.
-3. Add typed mood/request parsing and candidate rejection audits.
-4. Build the first explainable ranking run against Daniel's watchlist.
-5. Add live availability verification only after ranking can operate independently of it.
-6. Delay dashboard work until recommendation and explanation quality are measurable.
+1. Add a licensing-compatible open metadata provider and enrich a bounded horror sample.
+2. Convert selected metadata fields and horror signals into provenance-aware Evidence records.
+3. Generate Horror DNA from explicit reactions plus enriched film evidence.
+4. Add typed mood/request parsing and candidate rejection audits.
+5. Build the first explainable ranking run against Daniel's watchlist.
+6. Add live availability verification only after ranking can operate independently of it.
+7. Delay dashboard work until recommendation and explanation quality are measurable.
