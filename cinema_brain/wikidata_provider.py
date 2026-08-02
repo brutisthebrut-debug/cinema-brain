@@ -5,7 +5,6 @@ import json
 import re
 import time
 import zlib
-from dataclasses import replace
 from datetime import datetime, timezone
 from difflib import SequenceMatcher
 from typing import Callable
@@ -105,6 +104,19 @@ def _labels(payload: dict, entity_ids: list[str]) -> dict[str, str]:
     return result
 
 
+def _retry_after_seconds(exc: HTTPError) -> float | None:
+    headers = getattr(exc, "headers", None)
+    if headers is None:
+        return None
+    value = headers.get("Retry-After")
+    if value is None:
+        return None
+    try:
+        return max(0.0, float(value))
+    except (TypeError, ValueError):
+        return None
+
+
 class WikidataProvider:
     """Read-only CC0 film metadata provider backed by Wikidata's Action API."""
 
@@ -114,25 +126,44 @@ class WikidataProvider:
         self,
         *,
         requester: Callable[[str], dict] = _json_request,
-        retries: int = 2,
-        retry_delay: float = 0.5,
+        retries: int = 5,
+        retry_delay: float = 1.0,
+        min_request_interval: float = 0.35,
     ):
         self.requester = requester
         self.retries = max(0, retries)
         self.retry_delay = max(0.0, retry_delay)
+        self.min_request_interval = max(0.0, min_request_interval)
+        self._last_request_at: float | None = None
+
+    def _pace(self) -> None:
+        if self._last_request_at is None or self.min_request_interval <= 0:
+            return
+        elapsed = time.monotonic() - self._last_request_at
+        remaining = self.min_request_interval - elapsed
+        if remaining > 0:
+            time.sleep(remaining)
 
     def _request(self, params: dict[str, str]) -> dict:
         url = f"{ACTION_API}?{urlencode(params)}"
         for attempt in range(self.retries + 1):
+            self._pace()
             try:
-                return self.requester(url)
+                result = self.requester(url)
+                self._last_request_at = time.monotonic()
+                return result
             except HTTPError as exc:
+                self._last_request_at = time.monotonic()
                 if exc.code not in {429, 500, 502, 503, 504} or attempt >= self.retries:
                     raise
+                retry_after = _retry_after_seconds(exc)
+                backoff = self.retry_delay * (2**attempt)
+                time.sleep(max(backoff, retry_after or 0.0))
             except URLError:
+                self._last_request_at = time.monotonic()
                 if attempt >= self.retries:
                     raise
-            time.sleep(self.retry_delay * (2**attempt))
+                time.sleep(self.retry_delay * (2**attempt))
         raise RuntimeError("unreachable")
 
     def _search_query(self, query: str) -> list[dict]:
