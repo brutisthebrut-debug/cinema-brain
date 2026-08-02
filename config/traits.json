@@ -1,0 +1,77 @@
+{
+  "version": "1.0",
+  "families": {
+    "fear": [
+      "creeping_dread",
+      "sustained_uncertainty",
+      "found_footage_realism",
+      "isolation",
+      "liminal_unease",
+      "occult_dread",
+      "cosmic_dread",
+      "body_horror",
+      "home_invasion",
+      "jump_scare_density",
+      "gore_intensity"
+    ],
+    "emotion": [
+      "wonder",
+      "hope",
+      "grief",
+      "melancholy",
+      "loneliness",
+      "warmth",
+      "nostalgia",
+      "catharsis",
+      "awe",
+      "chaos"
+    ],
+    "style": [
+      "slow_burn",
+      "naturalistic_acting",
+      "minimal_dialogue",
+      "long_takes",
+      "dream_logic",
+      "nonlinear_storytelling",
+      "ambiguous_ending",
+      "practical_effects",
+      "stylized_visuals",
+      "documentary_texture"
+    ],
+    "story": [
+      "identity",
+      "memory",
+      "time",
+      "grief_theme",
+      "love",
+      "obsession",
+      "family",
+      "sacrifice",
+      "death",
+      "connection"
+    ],
+    "context": [
+      "comfort_watch",
+      "full_attention",
+      "background_friendly",
+      "watch_alone",
+      "watch_with_friends",
+      "date_night",
+      "autumn_vibe",
+      "rainy_night",
+      "late_night"
+    ]
+  },
+  "aliases": {
+    "creepy": ["creeping_dread", "liminal_unease"],
+    "blair witch": ["found_footage_realism", "creeping_dread", "sustained_uncertainty"],
+    "scared me": ["creeping_dread"],
+    "atmosphere": ["creeping_dread", "slow_burn"],
+    "jump scares": ["jump_scare_density"],
+    "gory": ["gore_intensity"],
+    "nostalgic": ["nostalgia"],
+    "sad": ["melancholy", "grief"],
+    "warm": ["warmth"],
+    "weird": ["dream_logic", "ambiguous_ending"]
+  }
+}
