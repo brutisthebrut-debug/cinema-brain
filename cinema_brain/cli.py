@@ -10,6 +10,7 @@ from .recommend import recommend
 from .taste import build_taste_profile
 from .rss_sync import sync_rss, write_report
 from .metadata_enrichment import enrich_films, write_enrichment_report
+from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
 from .wikidata_provider import WikidataProvider
 
 
@@ -48,6 +49,11 @@ def parser() -> argparse.ArgumentParser:
     enrich.add_argument("--cache-dir", default="data/cache/metadata")
     enrich.add_argument("--refresh", action="store_true")
     enrich.add_argument("--output", default="reports/metadata_enrichment.json")
+
+    evidence = sub.add_parser("extract-metadata-evidence")
+    evidence.add_argument("--film-key", action="append", dest="film_keys", help="Canonical film key; repeat for a bounded review set.")
+    evidence.add_argument("--limit", type=int, default=10)
+    evidence.add_argument("--output", default="reports/metadata_evidence.json")
     return p
 
 
@@ -90,4 +96,14 @@ def main() -> int:
             write_enrichment_report(report, Path(args.output))
         print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
         return 1 if report.failed else 0
+    if args.command == "extract-metadata-evidence":
+        report = extract_and_persist_metadata_evidence(
+            db,
+            film_keys=args.film_keys,
+            limit=args.limit,
+        )
+        if args.output:
+            write_batch_report(report, Path(args.output))
+        print(json.dumps(report.to_dict(), indent=2, ensure_ascii=False))
+        return 0
     return 2
