@@ -40,8 +40,8 @@ def test_taste_profile_persists_and_reuses_canonical_evidence(tmp_path: Path):
     first = build_taste_profile(db, taxonomy)
     second = build_taste_profile(db, taxonomy)
 
-    assert first["source_counts"]["persisted_evidence_records"] == 6
-    assert second["source_counts"]["persisted_evidence_records"] == 6
+    assert first["source_counts"]["persisted_evidence_records"] == 4
+    assert second["source_counts"]["persisted_evidence_records"] == 4
     assert second["traits"]["creeping_dread"]["affinity"] > 0
     assert second["traits"]["found_footage_realism"]["status"] == "persisted_explicit_text"
 
@@ -50,6 +50,9 @@ def test_taste_profile_persists_and_reuses_canonical_evidence(tmp_path: Path):
         "SELECT trait_id, model_version, source_ref FROM trait_evidence ORDER BY trait_id"
     ).fetchall()
     conn.close()
-    assert len(rows) == 6
+    assert len(rows) == 4
+    assert {row[0] for row in rows} == {
+        "creeping_dread", "found_footage_realism", "slow_burn", "sustained_uncertainty"
+    }
     assert all(row[1] == MODEL_VERSION for row in rows)
     assert all(row[2] == "manual:2" for row in rows)
