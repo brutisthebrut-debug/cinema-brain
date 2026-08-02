@@ -1,6 +1,7 @@
 from pathlib import Path
+import sqlite3
 
-from cinema_brain.db import connect, init_schema
+from cinema_brain.schema import SCHEMA_SQL
 from cinema_brain.metadata import FilmMetadata
 from cinema_brain.metadata_store import MetadataStore
 from cinema_brain.metadata_evidence import MODEL_VERSION
@@ -10,11 +11,11 @@ from cinema_brain.evidence import EvidenceStore
 
 def _db(tmp_path: Path) -> Path:
     path = tmp_path / "brain.db"
-    conn = connect(path)
-    init_schema(conn)
+    conn = sqlite3.connect(path)
+    conn.executescript(SCHEMA_SQL)
     conn.execute(
-        "INSERT INTO films (film_key, title, year, last_watched) VALUES (?, ?, ?, ?)",
-        ("undertone-2025", "Undertone", 2025, "2026-08-01"),
+        "INSERT INTO films (film_key, name, year, watched, last_watched_date) VALUES (?, ?, ?, ?, ?)",
+        ("undertone-2025", "Undertone", 2025, 1, "2026-08-01"),
     )
     conn.commit()
     conn.close()
