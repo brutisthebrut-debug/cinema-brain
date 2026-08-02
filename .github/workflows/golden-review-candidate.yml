@@ -1,0 +1,124 @@
+name: cinema-brain-golden-review-candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      review_ref:
+        description: Branch or commit containing the completed CSV worksheet
+        required: true
+      worksheet_path:
+        description: Repository-relative path to the completed CSV worksheet
+        required: true
+        default: reviews/golden_review.csv
+      reviewer:
+        description: Human reviewer name recorded in the decision packet
+        required: true
+        default: Daniel
+      next_version:
+        description: New benchmark version for the generated candidate
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cinema-brain-golden-review-candidate-${{ inputs.review_ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted engine from main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: app
+
+      - name: Checkout review input only
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.review_ref }}
+          path: review-input
+          sparse-checkout: ${{ inputs.worksheet_path }}
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: app/pyproject.toml
+
+      - name: Install trusted Cinema Brain and tests
+        working-directory: app
+        run: pip install -e . && pip install pytest
+
+      - name: Run regression suite from trusted main
+        working-directory: app
+        run: python -m pytest -q
+
+      - name: Resolve and constrain worksheet path
+        id: worksheet
+        env:
+          REQUESTED_PATH: ${{ inputs.worksheet_path }}
+        run: |
+          root="$(realpath review-input)"
+          candidate="$(realpath -m "review-input/$REQUESTED_PATH")"
+          case "$candidate" in
+            "$root"/*) ;;
+            *) echo "Worksheet path escapes review-input" >&2; exit 1 ;;
+          esac
+          test -f "$candidate" || { echo "Worksheet not found: $REQUESTED_PATH" >&2; exit 1; }
+          echo "path=$candidate" >> "$GITHUB_OUTPUT"
+
+      - name: Compile auditable decision packet
+        working-directory: app
+        run: |
+          mkdir -p reports/candidate
+          python -m cinema_brain golden-review-compile \
+            --benchmark config/golden_horror_v1.json \
+            --template "${{ steps.worksheet.outputs.path }}" \
+            --reviewer "${{ inputs.reviewer }}" \
+            --output reports/candidate/golden_review_decisions.json
+
+      - name: Generate promoted benchmark candidate
+        working-directory: app
+        run: |
+          python -m cinema_brain golden-promote \
+            --benchmark config/golden_horror_v1.json \
+            --decisions reports/candidate/golden_review_decisions.json \
+            --next-version "${{ inputs.next_version }}" \
+            --output reports/candidate/golden_horror_candidate.json
+
+      - name: Build review diff and integrity manifest
+        working-directory: app
+        run: |
+          git diff --no-index -- config/golden_horror_v1.json reports/candidate/golden_horror_candidate.json \
+            > reports/candidate/benchmark.patch || true
+          cp "${{ steps.worksheet.outputs.path }}" reports/candidate/completed_review.csv
+          cp config/golden_horror_v1.json reports/candidate/source_benchmark.json
+          sha256sum reports/candidate/* > reports/candidate/SHA256SUMS
+          cat > reports/candidate/REVIEW_ME.md <<'EOF'
+          # Golden Benchmark Candidate
+
+          This artifact was generated from a completed human review worksheet using trusted code from `main`.
+
+          Review these files before opening a benchmark PR:
+          - `completed_review.csv`
+          - `golden_review_decisions.json`
+          - `source_benchmark.json`
+          - `golden_horror_candidate.json`
+          - `benchmark.patch`
+          - `SHA256SUMS`
+
+          This workflow has read-only repository permissions. It cannot commit, open, approve, or merge a pull request.
+          EOF
+
+      - name: Upload private candidate bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinema-brain-golden-candidate-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: error
+          path: app/reports/candidate/
