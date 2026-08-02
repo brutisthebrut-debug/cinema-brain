@@ -2,18 +2,33 @@
 
 Updated: 2026-08-02
 
-This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains the product vision; this file records what is actually implemented and validated. Roadmap governance is defined in `docs/ROADMAP_GOVERNANCE.md`.
+This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains the product vision; this file records what is actually implemented and validated.
+
+## Canonical project references
+
+- `docs/VISION.md` — Daniel OS destination and Cinema Brain's role as reference implementation
+- `docs/FOUNDING_PRINCIPLES.md` — permanent doctrine, Forever Test, and architecture fitness checks
+- `docs/ROADMAP_GOVERNANCE.md` — roadmap standards, definitions of done, and engineering metrics
+- `docs/DECISIONS.md` — chronological product and operating decisions
+- `docs/RELEASE_NOTES.md` — shipped capabilities, lessons, accepted debt, and version history
+- `docs/TECHNICAL_DEBT.md` — intentional deferrals and repayment triggers
+- `docs/adr/` — detailed architecture decision records
 
 ## Operating rules
 
 - Build capabilities rather than isolated features.
 - Build before expanding the plan; change the roadmap when implementation teaches us something.
+- Apply the Forever Test before accepting major complexity.
 - Every subsystem remains replaceable behind typed contracts.
+- Every brain should be independently excellent but collectively smarter through explicit contracts and permissions.
+- Explainability, provenance, privacy, and human correction are non-negotiable.
 - Engine quality comes before dashboard work.
 - Every completed milestone records what was learned, which assumptions changed, and what duplicate work became unnecessary.
-- Major architectural decisions are recorded under `docs/adr/`.
+- Major architectural decisions are recorded under `docs/adr/` and summarized in `docs/DECISIONS.md`.
 - Intentional deferrals are recorded in `docs/TECHNICAL_DEBT.md`.
+- Engineering releases are recorded in `docs/RELEASE_NOTES.md`.
 - No item is marked complete until the full real-data validation pipeline passes.
+- Run an architecture fitness check after roughly 10–20 meaningful milestones, or sooner when complexity warrants it.
 
 ## Foundation epic — complete
 
@@ -31,6 +46,24 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 ## Milestone: Cinema Brain became a living system
 
 The first successful `dmarlin` RSS workflow established a continuously refreshable path from real-world viewing activity into durable memory, canonical reconciliation, validation, reports, and Cinematic DNA. CSV remains the historical authority; RSS provides incremental activity.
+
+This milestone is recorded as engineering release **v0.3 — Living Foundation**.
+
+## Daniel OS reference architecture
+
+Cinema Brain is the first complete implementation of the shared lifecycle:
+
+```text
+Source
+  -> Canonical Identity
+  -> Evidence
+  -> Learning
+  -> Prediction
+  -> Outcome
+  -> Calibration
+```
+
+Future modules may specialize their domain models, but should reuse these capabilities and preserve the same guarantees around provenance, explainability, correction, privacy, versioning, and validation.
 
 ## Active epic — Metadata Intelligence
 
@@ -67,6 +100,7 @@ Metadata Intelligence is complete when enrichment is replaceable, reproducible, 
 - CSV exports remain the historical correction mechanism; RSS is the incremental delta stream.
 - TMDB was rejected after terms review; metadata enrichment will use licensing-compatible open data behind the provider-neutral interface.
 - Conversation, CLI, future dashboard, and other Daniel OS modules will consume one stable recommendation interface rather than duplicate ranking logic.
+- Durable vision, principles, decisions, release notes, debt, and ADRs now prevent important reasoning from living only in chat.
 
 ## Then
 
