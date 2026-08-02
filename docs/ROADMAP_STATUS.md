@@ -15,33 +15,32 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains t
 ## Completed
 
 - Phase 0: reliable Letterboxd memory, validation, watched exclusion, and manual watch log
-- Taste-engine foundation: versioned weights, trait taxonomy, reaction parsing, profile generation
-- Integrated architecture: typed cross-layer contracts and 10x review gates
-- Durable learning ledger: frozen recommendations, score components, availability snapshots, outcomes, and prediction error
-- Metadata foundation and persistence: provider-neutral contracts, deterministic cache, canonical SQLite facts, identity safety, coverage, and staleness reporting
-- Evidence Graph foundation and persistence: canonical traits, immutable provenance, conflict preservation, durable storage, and model-version filtering
-- Evidence-backed Cinematic DNA: explicit reactions persist as film-level evidence and profile generation uses the durable graph
-- Letterboxd RSS delta ledger: feed parsing, raw event preservation, GUID deduplication, edit detection, and hermetic fixture tests
+- Taste-engine foundation and Evidence-backed Cinematic DNA
+- Durable learning ledger and recommendation outcome storage
+- Metadata foundation and canonical SQLite persistence
+- Evidence Graph foundation, provenance, conflicts, and durable storage
+- Letterboxd RSS raw delta ledger with parsing, deduplication, and edit detection
+- Canonical CSV/RSS/manual reconciliation with source precedence and replay protection
 
 ## Active validation
 
-Canonical source reconciliation:
-- promotes RSS diary/review deltas into canonical films, viewing events, ratings, and reviews
-- matches existing CSV or manual viewing events by canonical film identity plus watched date
-- enriches an existing event rather than counting the same watch again
-- records every RSS-to-canonical match in a durable audit ledger
-- keeps source precedence explicit: CSV/manual identity wins; RSS fills missing fields
-- is idempotent when the same feed is processed repeatedly
-- includes regressions for an existing Undertone export row and a new Vicious RSS-only row
+Safe live Letterboxd RSS synchronization:
+- `sync-rss` CLI command
+- configuration through username, exact feed URL, or environment variables
+- dry-run mode that fetches and parses without database writes
+- explicit rejection of non-Letterboxd feed URLs
+- durable JSON sync reports
+- raw ingestion followed by canonical reconciliation in one operation
+- missing-database protection
+- idempotency regression coverage
 
 ## Learned / changed
 
 - CSV exports remain the historical snapshot and correction mechanism.
 - RSS is the near-real-time delta stream, not a complete account mirror.
 - Manual chat updates remain the fastest source for private reactions and context.
-- Source records should not overwrite one another; reconciliation links them to one canonical event.
-- Same-film and same-day is the safe initial viewing-event match rule. Ambiguous no-date events remain auditable rather than guessed.
-- RSS descriptions can create review records while still linking to the same canonical viewing event.
+- Feed configuration belongs outside committed code; a public Letterboxd username is sufficient for standard profile feeds.
+- Dry-run and structured reports are required before any recurring automation is introduced.
 - TMDB was rejected after terms review; metadata enrichment will use licensing-compatible open data behind the provider-neutral interface.
 
 ## Active next milestone

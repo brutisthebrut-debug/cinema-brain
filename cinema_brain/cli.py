@@ -8,6 +8,7 @@ from .validate import validate
 from .report import build_report
 from .recommend import recommend
 from .taste import build_taste_profile
+from .rss_sync import sync_rss, write_report
 
 
 def parser() -> argparse.ArgumentParser:
@@ -31,6 +32,12 @@ def parser() -> argparse.ArgumentParser:
     rec.add_argument("--limit", type=int, default=10)
     rec.add_argument("--min-rating", type=float, default=0.0)
     rec.add_argument("--genre", help="Reserved for future metadata enrichment.")
+
+    rss = sub.add_parser("sync-rss")
+    rss.add_argument("--username", help="Letterboxd username; may also use LETTERBOXD_USERNAME.")
+    rss.add_argument("--feed-url", help="Exact profile RSS URL; may also use LETTERBOXD_RSS_URL.")
+    rss.add_argument("--dry-run", action="store_true", help="Fetch and parse without changing the database.")
+    rss.add_argument("--output", default="reports/rss_sync.json", help="JSON sync report path; use an empty string to disable.")
     return p
 
 
@@ -53,5 +60,10 @@ def main() -> int:
         return 0
     if args.command == "recommend":
         print(json.dumps(recommend(db, args.limit, args.min_rating), indent=2))
+        return 0
+    if args.command == "sync-rss":
+        report = sync_rss(db, username=args.username, feed_url=args.feed_url, dry_run=args.dry_run)
+        write_report(report, Path(args.output) if args.output else None)
+        print(json.dumps(report.to_dict(), indent=2))
         return 0
     return 2
