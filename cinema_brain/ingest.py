@@ -68,13 +68,14 @@ def classify(path: Path, headers: Iterable[str]) -> str:
     name = path.name.lower()
     if _is_letterboxd_list(path):
         return "list"
+    if name == "manual_watches.csv":
+        return "diary"
     if "liked" in parents and name == "films.csv":
         return "liked_films"
     if "liked" in parents or name == "comments.csv":
         return "auxiliary"
     if name == "profile.csv":
         return "profile"
-    # Reviews also contain a Watched Date column, so identify them first.
     if name == "reviews.csv" and "review" in hs:
         return "reviews"
     if name == "diary.csv":
@@ -90,9 +91,9 @@ def classify(path: Path, headers: Iterable[str]) -> str:
     return "unknown"
 
 
-def discover(raw_dir: Path) -> list[Source]:
+def discover(data_dir: Path) -> list[Source]:
     result = []
-    for path in sorted(raw_dir.rglob("*.csv")):
+    for path in sorted(data_dir.rglob("*.csv")):
         rows, headers = _read_rows(path)
         result.append(Source(path, headers, classify(path, headers), len(rows), _sha256(path)))
     return result
@@ -159,7 +160,7 @@ def _upsert_film(conn: sqlite3.Connection, row: dict[str, str], **flags) -> str:
     return key
 
 
-def ingest(raw_dir: Path, db_path: Path) -> dict:
+def ingest(data_dir: Path, db_path: Path) -> dict:
     db_path.parent.mkdir(parents=True, exist_ok=True)
     if db_path.exists():
         db_path.unlink()
@@ -168,7 +169,7 @@ def ingest(raw_dir: Path, db_path: Path) -> dict:
     summary: dict = {"files": 0, "rows": 0, "by_kind": {}}
     now = datetime.now(timezone.utc).isoformat()
 
-    for source in discover(raw_dir):
+    for source in discover(data_dir):
         rows, headers = _read_rows(source.path)
         rel = str(source.path)
         conn.execute(
