@@ -4,9 +4,23 @@
 
 The golden dataset is the permanent human-reviewed benchmark for identity matching, metadata normalization, provenance, and semantic-signal extraction. Whole-library enrichment is blocked until the active provider stack passes this benchmark.
 
+## Current executable seed
+
+`config/golden_horror_v1.json` is the first machine-readable seed. It contains 10 deliberately hazardous horror identities, including remakes, generic titles, punctuation differences, international titles, and *Undertone*.
+
+The seed is **not yet approved truth**. Every record begins with `reviewed: false`. CI validates its structure and identity rules, but the release gate remains closed until records are manually reviewed and promoted. This prevents an initial draft from quietly becoming authoritative.
+
+`cinema_brain.golden_dataset` provides:
+- strict versioned loading
+- duplicate and malformed-record rejection
+- canonical and accepted-title normalization
+- exact title/year evaluation
+- explicit mismatch explanations
+- release-gate summaries that count only reviewed records
+
 ## Initial size
 
-Start with 50 films. Expand toward 100 only when new failure classes appear.
+Start with 50 films. Expand toward 100 only when new failure classes appear. The first 10-record seed establishes the schema and regression machinery; the remaining records should be selected from Daniel's real library and review artifacts.
 
 ## Required coverage
 
@@ -86,6 +100,7 @@ The golden record does not pretend every interpretive trait is objective. Facts 
 
 Before whole-library enrichment:
 - zero known false-positive identity matches
+- at least one reviewed benchmark record; a seed-only dataset can never pass
 - 100% provenance on persisted fields
 - all low-confidence matches quarantined
 - repeated runs produce the same canonical results from cache
@@ -109,8 +124,9 @@ Every real-world matching failure becomes:
 2. Generate provider candidates and confidence explanations.
 3. Review facts and identity manually.
 4. Approve, reject, or quarantine each match.
-5. Freeze the benchmark record with a version.
-6. Run it in CI for every provider or matching change.
+5. Set `reviewed: true` only after approval.
+6. Freeze the benchmark record with a version.
+7. Run it in CI for every provider or matching change.
 
 ## Versioning
 
