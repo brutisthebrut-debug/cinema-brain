@@ -14,7 +14,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--db", default="cinema_brain.db")
     sub = p.add_subparsers(dest="command", required=True)
     i = sub.add_parser("ingest")
-    i.add_argument("--raw-dir", default="data/raw")
+    i.add_argument("--data-dir", "--raw-dir", dest="data_dir", default="data")
     sub.add_parser("validate")
     r = sub.add_parser("report")
     r.add_argument("--output", default="reports/baseline_analysis.md")
@@ -29,7 +29,7 @@ def main() -> int:
     args = parser().parse_args()
     db = Path(args.db)
     if args.command == "ingest":
-        print(json.dumps(ingest(Path(args.raw_dir), db), indent=2))
+        print(json.dumps(ingest(Path(args.data_dir), db), indent=2))
         return 0
     if args.command == "validate":
         errors, warnings = validate(db)
