@@ -1,0 +1,68 @@
+name: cinema-brain-horror-sample-review
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Number of recent films to review (keep bounded)
+        required: true
+        default: "10"
+      refresh:
+        description: Refresh Wikidata cache
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cinema-brain-horror-sample-review
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install Cinema Brain and tests
+        run: pip install -e . && pip install pytest
+      - name: Run regression suite
+        run: python -m pytest -q
+      - name: Rebuild canonical database
+        run: python -m cinema_brain --db cinema_brain.db ingest --data-dir data
+      - name: Enrich bounded sample
+        run: |
+          args=""
+          if [ "${{ inputs.refresh }}" = "true" ]; then args="--refresh"; fi
+          python -m cinema_brain --db cinema_brain.db enrich-metadata \
+            --limit "${{ inputs.limit }}" $args \
+            --output reports/horror_sample_enrichment.json
+      - name: Extract and persist evidence
+        run: |
+          python -m cinema_brain --db cinema_brain.db extract-metadata-evidence \
+            --limit "${{ inputs.limit }}" \
+            --output reports/horror_sample_evidence.json
+      - name: Validate database
+        run: python -m cinema_brain --db cinema_brain.db validate
+      - name: Build human review packet
+        run: |
+          python -m cinema_brain --db cinema_brain.db sample-review \
+            --limit "${{ inputs.limit }}" \
+            --output reports/horror_sample_review.json
+      - name: Upload private review packet
+        uses: actions/upload-artifact@v4
+        with:
+          name: cinema-brain-horror-sample-${{ github.run_number }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            reports/horror_sample_enrichment.json
+            reports/horror_sample_evidence.json
+            reports/horror_sample_review.json
+            cinema_brain.db
