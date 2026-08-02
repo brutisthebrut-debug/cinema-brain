@@ -46,12 +46,7 @@ def test_provider_maps_exact_title_and_year() -> None:
         ids = params["ids"][0].split("|")
         if ids == ["Q1"]:
             return {"entities": {"Q1": film}}
-        return {
-            "entities": {
-                entity_id: {"labels": {"en": {"value": labels[entity_id]}}}
-                for entity_id in ids
-            }
-        }
+        return {"entities": {entity_id: {"labels": {"en": {"value": labels[entity_id]}}} for entity_id in ids}}
 
     item = WikidataProvider(requester=requester).fetch(FilmLookup("undertone-2025", "Undertone", 2025))
     assert item is not None
@@ -65,6 +60,26 @@ def test_provider_maps_exact_title_and_year() -> None:
     assert item.runtime_minutes == 95
     assert item.keywords == ("fear",)
     assert item.confidence >= 0.98
+
+
+def test_provider_falls_back_to_title_only_search() -> None:
+    film = _entity("The Thing", 1982)
+    searches = []
+
+    def requester(url: str) -> dict:
+        params = parse_qs(urlparse(url).query)
+        if params["action"][0] == "wbsearchentities":
+            query = params["search"][0]
+            searches.append(query)
+            return {"search": [] if query.endswith("1982") else [{"id": "Q1", "label": "The Thing"}]}
+        ids = params["ids"][0].split("|")
+        if ids == ["Q1"]:
+            return {"entities": {"Q1": film}}
+        return {"entities": {}}
+
+    item = WikidataProvider(requester=requester).fetch(FilmLookup("the-thing-1982", "The Thing", 1982))
+    assert item is not None
+    assert searches == ["The Thing 1982", "The Thing"]
 
 
 def test_provider_rejects_same_title_wrong_year() -> None:
@@ -105,7 +120,7 @@ def test_provider_retries_transient_error(monkeypatch: pytest.MonkeyPatch) -> No
 
     monkeypatch.setattr("cinema_brain.wikidata_provider.time.sleep", lambda _: None)
     assert WikidataProvider(requester=requester, retries=1).fetch(FilmLookup("x", "X", 2000)) is None
-    assert calls == 2
+    assert calls == 3
 
 
 def test_default_requester_declares_project_user_agent(monkeypatch: pytest.MonkeyPatch) -> None:
