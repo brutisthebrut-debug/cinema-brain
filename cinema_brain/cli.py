@@ -70,3 +70,7 @@ def main() -> int:
     if args.command == "profile-review-compile": print(json.dumps(compile_review(Path(args.profiles), Path(args.worksheet), Path(args.output), reviewer=args.reviewer), indent=2)); return 0
     if args.command == "profile-review-promote": print(json.dumps(promote_reviewed_profiles(Path(args.profiles), Path(args.decisions), Path(args.registry), Path(args.output), next_version=args.next_version), indent=2)); return 0
     return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
