@@ -164,6 +164,9 @@ jobs:
           }, indent=2))
           PY
 
+      - name: Package read-only Brain health dashboard
+        run: cp tools/brain-health/index.html artifacts/brain_health_dashboard_v1.html
+
       - name: Upload private recommendation artifact
         uses: actions/upload-artifact@v4
         with:
@@ -175,5 +178,6 @@ jobs:
             artifacts/recommendation_release_manifest_v1.json
             artifacts/recommendation_prediction_snapshot_v1.json
             artifacts/recommendation_audit_v1.json
+            artifacts/brain_health_dashboard_v1.html
           if-no-files-found: error
           retention-days: 30

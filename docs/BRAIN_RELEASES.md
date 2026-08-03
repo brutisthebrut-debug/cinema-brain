@@ -72,7 +72,7 @@ Definition of done:
 
 ## Brain v0.3 — Recommendation Intelligence
 
-Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating and audit active
+Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating, audit, and health inspection active
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
@@ -178,10 +178,23 @@ Shipped:
 - create-once audit output and regression coverage
 - permanent contract and agent handoff in `docs/RECOMMENDATION_AUDIT_V1.md`
 
+#### Brain Health Dashboard v1
+
+Status: implemented as the thin read-only Studio surface over Recommendation Audit v1.
+
+Shipped:
+
+- local import of the verified `recommendation_audit_v1.json` artifact
+- release identity, integrity, gate, count, rank-movement, abstention, and evidence-coverage views
+- explicit awaiting-outcome boundary keyed by `release_id`
+- dependency-free, mobile-ready, private operation with no network or browser storage
+- fail-closed rejection of wrong-version, unverified, failed-gate, or post-outcome audit records
+- production artifact packaging and regression coverage
+- permanent contract and agent handoff in `docs/BRAIN_HEALTH_DASHBOARD_V1.md`
+
 Next validation work:
 
-1. Brain Health Dashboard v1 may expose the stable audit contract as a thin read-only view.
-2. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
+1. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
 
 ### Milestone 4 — Continuous learning
 
@@ -267,6 +280,6 @@ The active sequence is:
 4. preserve the merged raw ranking and diversity-aware balanced slate
 5. enforce Recommendation Release Gates v1 and freeze the prediction manifest and snapshot
 6. preserve Recommendation Audit v1 as the read-only diagnostic contract
-7. expose Brain Health Dashboard v1 only as a thin read-only audit surface
+7. preserve Brain Health Dashboard v1 as the thin read-only audit surface
 8. collect post-watch outcomes by `release_id` and measure Recommendation Trust
 9. expand corpus and confidence only when outcome evidence supports it
