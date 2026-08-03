@@ -389,7 +389,7 @@ These remain future options, not active work:
 - public API
 - marketplace
 - plugin ecosystem
-- dashboard-led development
+- dashboard-owned intelligence logic; the active Brain Health Dashboard is limited to a thin read-only audit surface
 
 They return only after the intelligence layer produces consistently useful, measurable recommendations.
 
@@ -432,16 +432,18 @@ Explicit corrections supersede inference while preserving the original evidence 
 
 # Current execution queue
 
-1. Commit and merge the successful Golden Horror v2 candidate release.
-2. Implement Canonical Trait Model v1.
-3. Build the trait authoring worksheet, decision packet, promotion, and regression path.
-4. Author the nine reviewed horror-film profiles.
-5. Generate Taste Intelligence v1 from canonical traits and durable Evidence.
-6. Run the first explainable recommendation against Daniel's real watchlist and context.
-7. Record the outcome and calibrate against actual response.
-8. Expand the horror benchmark to 25 and then 50 based on measured gaps.
+The release-level execution state is maintained in `docs/BRAIN_RELEASES.md`. The current dependency order is:
 
-No additional provider, governance, dashboard, social, or marketplace work should interrupt this sequence unless a real blocker requires it.
+1. Preserve the merged Brain v0.1 canonical horror truth.
+2. Preserve the merged Brain v0.2 taste and calibration contracts.
+3. Preserve Brain v0.3's versioned corpus, raw ranking, and balanced top-five slate through PR #60.
+4. Enforce Recommendation Release Gates v1 and freeze the manifest and prediction snapshot.
+5. Build Recommendation Audit v1 against those immutable release records.
+6. Expose Brain Health Dashboard v1 only as a thin read-only audit surface.
+7. Record Daniel's post-watch outcome by `release_id`, calculate Recommendation Trust, and convert failures into fixtures.
+8. Expand the horror benchmark to 25 and then 50 only when measured gaps justify it.
+
+No additional provider, governance, social, marketplace, or dashboard-owned intelligence work should interrupt this sequence unless a real blocker requires it.
 
 ---
 
