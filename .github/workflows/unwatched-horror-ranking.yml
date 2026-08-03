@@ -141,6 +141,29 @@ jobs:
           }, indent=2))
           PY
 
+      - name: Build verified recommendation audit
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from cinema_brain.recommendation_audit import write_recommendation_audit
+
+          audit = write_recommendation_audit(
+              Path('artifacts/recommendation_release_manifest_v1.json'),
+              Path('artifacts/recommendation_prediction_snapshot_v1.json'),
+              Path('artifacts/recommendation_audit_v1.json'),
+          )
+          print(json.dumps({
+              'audit_id': audit['audit_id'],
+              'release_id': audit['release_id'],
+              'status': audit['status'],
+              'gate_pass_ratio': audit['health_metrics']['release_gate_pass_ratio'],
+              'evidence_coverage': audit['health_metrics']['explanation_evidence_coverage'],
+              'outcome_status': audit['outcome_status']['status'],
+          }, indent=2))
+          PY
+
       - name: Upload private recommendation artifact
         uses: actions/upload-artifact@v4
         with:
@@ -151,5 +174,6 @@ jobs:
             artifacts/unwatched_horror_balanced_slate_v1.json
             artifacts/recommendation_release_manifest_v1.json
             artifacts/recommendation_prediction_snapshot_v1.json
+            artifacts/recommendation_audit_v1.json
           if-no-files-found: error
           retention-days: 30
