@@ -1,0 +1,127 @@
+{
+  "version": "1.0.0",
+  "registry_version": "1.0.0",
+  "review": {
+    "reviewer": "Daniel",
+    "reviewed_at": "2026-08-03T04:30:00+00:00"
+  },
+  "films": [
+    {
+      "film_key": "title:the-blair-witch-project:1999",
+      "title": "The Blair Witch Project",
+      "year": 1999,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"found_footage_realism","value":0.98,"confidence":0.98,"source":"human_authored","rationale":"Recorded-media form is central to the film's realism.","review_note":""},
+        {"trait_id":"creeping_dread","value":0.96,"confidence":0.94,"source":"human_authored","rationale":"Fear accumulates gradually through atmosphere and uncertainty.","review_note":""},
+        {"trait_id":"sustained_uncertainty","value":0.97,"confidence":0.95,"source":"human_authored","rationale":"The threat and its rules remain unresolved for most of the film.","review_note":""},
+        {"trait_id":"isolation","value":0.94,"confidence":0.96,"source":"human_authored","rationale":"The characters become physically cut off from safety.","review_note":""},
+        {"trait_id":"ambiguous_ending","value":0.95,"confidence":0.94,"source":"human_authored","rationale":"The conclusion withholds a complete factual explanation.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:the-thing:1982",
+      "title": "The Thing",
+      "year": 1982,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"isolation","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"The Antarctic station is completely cut off from outside help.","review_note":""},
+        {"trait_id":"paranoia","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"Identity uncertainty makes every character suspect.","review_note":""},
+        {"trait_id":"body_horror","value":0.98,"confidence":0.99,"source":"human_authored","rationale":"Transformation and bodily violation drive the horror.","review_note":""},
+        {"trait_id":"practical_effects","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"Physical creature and makeup effects are a defining craft feature.","review_note":""},
+        {"trait_id":"ambiguous_ending","value":0.92,"confidence":0.94,"source":"human_authored","rationale":"The final identities and outcome remain unresolved.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:suspiria:1977",
+      "title": "Suspiria",
+      "year": 1977,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"stylized_visuals","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"Heightened color and expressionistic design define the film.","review_note":""},
+        {"trait_id":"occult_dread","value":0.94,"confidence":0.96,"source":"human_authored","rationale":"Hidden witchcraft and ritual systems drive the threat.","review_note":""},
+        {"trait_id":"dream_logic","value":0.91,"confidence":0.91,"source":"human_authored","rationale":"The film often privileges nightmare association over realism.","review_note":""},
+        {"trait_id":"sound_driven_tension","value":0.96,"confidence":0.97,"source":"human_authored","rationale":"Music and sound design are central to the fear response.","review_note":""},
+        {"trait_id":"beautiful_cinematography","value":0.97,"confidence":0.90,"source":"human_authored","rationale":"Candidate personal-response trait for review because visual beauty is unusually prominent.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:the-wicker-man:1973",
+      "title": "The Wicker Man",
+      "year": 1973,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"folk_horror","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"Rural tradition, community belief, and ritual define the film.","review_note":""},
+        {"trait_id":"occult_dread","value":0.91,"confidence":0.94,"source":"human_authored","rationale":"Religious ritual and hidden belief systems drive the threat.","review_note":""},
+        {"trait_id":"isolation","value":0.86,"confidence":0.91,"source":"human_authored","rationale":"The protagonist is socially and geographically isolated.","review_note":""},
+        {"trait_id":"sustained_uncertainty","value":0.88,"confidence":0.90,"source":"human_authored","rationale":"The island community's purpose remains concealed.","review_note":""},
+        {"trait_id":"bleak_ending","value":0.98,"confidence":0.99,"source":"human_authored","rationale":"The conclusion offers no rescue or meaningful relief.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:the-fly:1986",
+      "title": "The Fly",
+      "year": 1986,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"body_horror","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"Progressive bodily transformation is the central horror mechanism.","review_note":""},
+        {"trait_id":"practical_effects","value":0.98,"confidence":0.99,"source":"human_authored","rationale":"Makeup and physical transformation effects are foundational.","review_note":""},
+        {"trait_id":"relationship_breakdown","value":0.93,"confidence":0.94,"source":"human_authored","rationale":"The transformation destroys an intimate relationship.","review_note":""},
+        {"trait_id":"grief","value":0.85,"confidence":0.86,"source":"human_authored","rationale":"Loss and anticipatory mourning shape the emotional arc.","review_note":""},
+        {"trait_id":"emotional_devastation","value":0.88,"confidence":0.80,"source":"human_authored","rationale":"Candidate Daniel-response trait requiring explicit confirmation.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:the-ring:2002",
+      "title": "The Ring",
+      "year": 2002,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"creeping_dread","value":0.94,"confidence":0.94,"source":"human_authored","rationale":"The film builds fear through a persistent approaching deadline.","review_note":""},
+        {"trait_id":"occult_dread","value":0.88,"confidence":0.90,"source":"human_authored","rationale":"A supernatural curse structures the threat.","review_note":""},
+        {"trait_id":"sound_driven_tension","value":0.86,"confidence":0.88,"source":"human_authored","rationale":"Audio and silence repeatedly intensify unease.","review_note":""},
+        {"trait_id":"sustained_uncertainty","value":0.90,"confidence":0.91,"source":"human_authored","rationale":"The curse's history and mechanics unfold gradually.","review_note":""},
+        {"trait_id":"bleak_ending","value":0.85,"confidence":0.88,"source":"human_authored","rationale":"The apparent resolution becomes morally and emotionally compromised.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:let-the-right-one-in:2008",
+      "title": "Let the Right One In",
+      "year": 2008,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"loneliness","value":0.96,"confidence":0.96,"source":"human_authored","rationale":"Social and emotional isolation shape both central characters.","review_note":""},
+        {"trait_id":"connection","value":0.94,"confidence":0.94,"source":"human_authored","rationale":"An unlikely bond is the emotional center of the story.","review_note":""},
+        {"trait_id":"melancholy","value":0.93,"confidence":0.93,"source":"human_authored","rationale":"The film maintains a sustained wistful sadness.","review_note":""},
+        {"trait_id":"slow_burn","value":0.88,"confidence":0.90,"source":"human_authored","rationale":"The story develops patiently through mood and relationship.","review_note":""},
+        {"trait_id":"ambiguous_ending","value":0.72,"confidence":0.75,"source":"human_authored","rationale":"The emotional future and power dynamics remain open to interpretation.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:the-host:2006",
+      "title": "The Host",
+      "year": 2006,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"creature_feature","value":0.99,"confidence":0.99,"source":"human_authored","rationale":"A central nonhuman creature drives the threat and plot.","review_note":""},
+        {"trait_id":"family","value":0.97,"confidence":0.97,"source":"human_authored","rationale":"Family dysfunction and solidarity are central to the story.","review_note":""},
+        {"trait_id":"relentless_pacing","value":0.81,"confidence":0.84,"source":"human_authored","rationale":"Major sequences maintain strong forward pressure.","review_note":""},
+        {"trait_id":"sacrifice","value":0.88,"confidence":0.90,"source":"human_authored","rationale":"Characters repeatedly risk themselves for family.","review_note":""},
+        {"trait_id":"grief","value":0.86,"confidence":0.88,"source":"human_authored","rationale":"Loss and mourning remain active throughout the film.","review_note":""}
+      ]
+    },
+    {
+      "film_key": "title:undertone:2025",
+      "title": "Undertone",
+      "year": 2025,
+      "status": "reviewed",
+      "traits": [
+        {"trait_id":"creeping_dread","value":0.98,"confidence":0.99,"source":"human_authored","rationale":"Daniel explicitly described a creeping Blair Witch-like dread.","review_note":""},
+        {"trait_id":"genuine_fear_response","value":0.95,"confidence":0.99,"source":"human_authored","rationale":"Daniel explicitly reported that the film genuinely scared him.","review_note":""},
+        {"trait_id":"sustained_uncertainty","value":0.92,"confidence":0.94,"source":"human_authored","rationale":"Daniel emphasized unease and uncertainty as major strengths.","review_note":""},
+        {"trait_id":"found_footage_realism","value":0.84,"confidence":0.82,"source":"human_authored","rationale":"Daniel compared its fear effect to The Blair Witch Project's realism.","review_note":""},
+        {"trait_id":"sound_driven_tension","value":0.78,"confidence":0.66,"source":"human_authored","rationale":"Candidate craft interpretation requiring review against the film profile.","review_note":""}
+      ]
+    }
+  ]
+}
