@@ -1,0 +1,82 @@
+name: cinema-brain-personal-taste-graph
+
+on:
+  workflow_dispatch:
+    inputs:
+      data_dir:
+        description: Letterboxd export and manual data directory
+        required: false
+        default: data
+      output_name:
+        description: Artifact name
+        required: false
+        default: daniel-personal-taste-graph-v1
+
+permissions:
+  contents: read
+
+jobs:
+  build-taste-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install Cinema Brain
+        run: pip install -e .
+
+      - name: Ingest canonical history
+        run: >-
+          python -m cinema_brain.cli
+          --db cinema_brain.db
+          ingest
+          --data-dir "${{ inputs.data_dir }}"
+
+      - name: Validate normalized database
+        run: python -m cinema_brain.cli --db cinema_brain.db validate
+
+      - name: Generate personal taste graph
+        run: >-
+          python -m cinema_brain.cli
+          --db cinema_brain.db
+          personal-taste-graph
+          --profiles config/canonical_horror_profiles_v1_reviewed.json
+          --output artifacts/personal_taste_graph_v1.json
+
+      - name: Verify graph shape
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          path = Path('artifacts/personal_taste_graph_v1.json')
+          graph = json.loads(path.read_text(encoding='utf-8'))
+          required = {'version', 'model_version', 'profile_version', 'registry_version', 'signal_count', 'learned_trait_count', 'traits'}
+          missing = required - set(graph)
+          if missing:
+              raise SystemExit(f'missing graph keys: {sorted(missing)}')
+          if graph['signal_count'] < 1:
+              raise SystemExit('no canonical benchmark films matched persisted history')
+          if graph['learned_trait_count'] < 1:
+              raise SystemExit('taste graph learned no traits')
+          print(json.dumps({
+              'signal_count': graph['signal_count'],
+              'learned_trait_count': graph['learned_trait_count'],
+              'conflicted_traits': sum(1 for value in graph['traits'].values() if value['conflict']),
+              'provisional_traits': sum(1 for value in graph['traits'].values() if value['status'] == 'provisional'),
+          }, indent=2))
+          PY
+
+      - name: Upload private taste graph artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.output_name }}
+          path: artifacts/personal_taste_graph_v1.json
+          if-no-files-found: error
+          retention-days: 30
