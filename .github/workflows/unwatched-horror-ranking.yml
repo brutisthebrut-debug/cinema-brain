@@ -106,35 +106,38 @@ jobs:
           })
           PY
 
-      - name: Verify production artifacts
+      - name: Build and verify immutable recommendation release
+        env:
+          SOURCE_REVISION: ${{ github.sha }}
         run: |
           python - <<'PY'
           import json
+          import os
+          from datetime import datetime, timezone
           from pathlib import Path
 
-          ranking = json.loads(Path('artifacts/unwatched_horror_ranking_v1.json').read_text(encoding='utf-8'))
-          balanced = json.loads(Path('artifacts/unwatched_horror_balanced_slate_v1.json').read_text(encoding='utf-8'))
-          if ranking['candidate_count'] != 12:
-              raise SystemExit(f"expected 12 frozen candidates, got {ranking['candidate_count']}")
-          if ranking['eligible_count'] + ranking['watched_excluded_count'] != ranking['candidate_count']:
-              raise SystemExit('candidate accounting does not reconcile')
-          if ranking['recommended_count'] + ranking['abstained_count'] != ranking['eligible_count']:
-              raise SystemExit('eligible candidate accounting does not reconcile')
-          ranks = [film['recommendation_rank'] for film in ranking['recommendations']]
-          if ranks != list(range(1, len(ranks) + 1)):
-              raise SystemExit(f'non-contiguous recommendation ranks: {ranks}')
-          if balanced['raw_recommendations'] != ranking['recommendations']:
-              raise SystemExit('balanced artifact did not preserve raw recommendations')
-          if len(balanced['balanced_slate']) != min(5, ranking['recommended_count']):
-              raise SystemExit('balanced slate size is incorrect')
-          slate_ranks = [film['slate_rank'] for film in balanced['balanced_slate']]
-          if slate_ranks != list(range(1, len(slate_ranks) + 1)):
-              raise SystemExit(f'non-contiguous slate ranks: {slate_ranks}')
+          from cinema_brain.recommendation_release_gates import (
+              verify_recommendation_release_package,
+              write_recommendation_release_package,
+          )
+
+          generated_at = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+          manifest_path, snapshot_path = write_recommendation_release_package(
+              Path('artifacts/unwatched_horror_ranking_v1.json'),
+              Path('artifacts/unwatched_horror_balanced_slate_v1.json'),
+              Path('artifacts'),
+              generated_at=generated_at,
+              source_revision=os.environ['SOURCE_REVISION'],
+              expected_slate_size=5,
+          )
+          manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+          snapshot = json.loads(snapshot_path.read_text(encoding='utf-8'))
+          verify_recommendation_release_package(manifest, snapshot)
           print(json.dumps({
-              'raw_top': ranking['recommendations'][0]['title'] if ranking['recommendations'] else None,
-              'balanced_top': balanced['balanced_slate'][0]['title'] if balanced['balanced_slate'] else None,
-              'discovery_count': balanced['slate_metrics']['discovery_count'],
-              'trait_diversity_ratio': balanced['slate_metrics']['trait_diversity_ratio'],
+              'release_id': manifest['release_id'],
+              'status': manifest['status'],
+              'released_predictions': manifest['counts']['released_predictions'],
+              'prediction_snapshot_sha256': manifest['prediction_snapshot_sha256'],
           }, indent=2))
           PY
 
@@ -146,5 +149,7 @@ jobs:
             artifacts/personal_taste_graph_v1.json
             artifacts/unwatched_horror_ranking_v1.json
             artifacts/unwatched_horror_balanced_slate_v1.json
+            artifacts/recommendation_release_manifest_v1.json
+            artifacts/recommendation_prediction_snapshot_v1.json
           if-no-files-found: error
           retention-days: 30

@@ -72,7 +72,7 @@ Definition of done:
 
 ## Brain v0.3 — Recommendation Intelligence
 
-Status: active production release
+Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating active
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
@@ -112,6 +112,8 @@ Deliverables:
 - frozen prediction record before outcome capture
 - abstention when evidence is insufficient
 
+Production state: complete through the raw-ranking and diversity-aware balanced-slate production artifacts merged in PR #60.
+
 A recommendation must distinguish:
 
 - liking a craft element from liking the whole film
@@ -145,6 +147,26 @@ Initial release gate:
 - collect outcomes without rewriting the original prediction
 - inspect every miss and overconfident recommendation
 - do not claim production-quality recommendation accuracy from the nine-film training benchmark
+
+#### Recommendation Release Gates v1
+
+Status: implemented as the active Brain v0.3 release boundary.
+
+Shipped:
+
+- fail-closed version, accounting, ranking, slate, watched-exclusion, prediction-quality, and slate-metric checks
+- a versioned recommendation manifest with complete gate results and input digests
+- a create-once prediction snapshot frozen before human outcome capture
+- content-addressed release identity and tamper verification
+- production workflow upload of the manifest and snapshot beside the raw and balanced artifacts
+- regression coverage for eligible release, watched overlap, tampering, and overwrite prevention
+- permanent contract and agent handoff in `docs/RECOMMENDATION_RELEASE_GATES_V1.md`
+
+Next validation work:
+
+1. Recommendation Audit v1 consumes manifests and snapshots without rewriting them.
+2. Brain Health Dashboard v1 may expose the stable audit contract as a thin read-only view.
+3. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
 
 ### Milestone 4 — Continuous learning
 
@@ -200,6 +222,9 @@ Track intelligence quality rather than code volume:
 - abstention rate and abstention quality
 - diversity and novelty
 - regression pass rate
+- release-gate pass and failure reasons
+- prediction-snapshot integrity
+- frozen releases awaiting outcome evidence
 - review backlog
 
 ## UI and Studio boundary
@@ -208,6 +233,7 @@ The internal review and calibration interfaces remain useful prototypes and futu
 
 New UI work is paused unless it:
 
+- renders the stable Recommendation Audit and Brain Health contracts without owning engine logic,
 - removes friction from an active intelligence validation task,
 - exposes evidence required to diagnose a recommendation,
 - or remains a small bounded layer over an already-stable engine contract.
@@ -222,7 +248,10 @@ The active sequence is:
 
 1. preserve Brain v0.1 canonical truth
 2. use Brain v0.2 taste and calibration contracts as the scoring foundation
-3. build the first versioned recommendation corpus
-4. rank a small frozen unwatched horror batch with explanations and abstention
-5. collect outcomes and measure Recommendation Trust
-6. expand corpus and confidence only when evidence supports it
+3. preserve the merged versioned recommendation corpus
+4. preserve the merged raw ranking and diversity-aware balanced slate
+5. enforce Recommendation Release Gates v1 and freeze the prediction manifest and snapshot
+6. build Recommendation Audit v1 against the frozen release contract
+7. expose Brain Health Dashboard v1 only as a thin read-only audit surface
+8. collect post-watch outcomes by `release_id` and measure Recommendation Trust
+9. expand corpus and confidence only when outcome evidence supports it
