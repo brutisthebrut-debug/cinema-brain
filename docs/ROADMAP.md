@@ -439,7 +439,7 @@ The release-level execution state is maintained in `docs/BRAIN_RELEASES.md`. The
 3. Preserve Brain v0.3's versioned corpus, raw ranking, and balanced top-five slate through PR #60.
 4. Preserve Recommendation Release Gates v1 and its frozen manifest and prediction snapshot.
 5. Preserve Recommendation Audit v1 as the verified read-only contract over those immutable records.
-6. Build Brain Health Dashboard v1 only as a thin read-only audit surface.
+6. Preserve Brain Health Dashboard v1 as the thin read-only audit surface.
 7. Record Daniel's post-watch outcome by `release_id`, calculate Recommendation Trust, and convert failures into fixtures.
 8. Expand the horror benchmark to 25 and then 50 only when measured gaps justify it.
 
