@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "reviewer": "Daniel Marlin",
+  "preferences": [
+    {
+      "trait_id": "practical_effects",
+      "affinity": 1.0,
+      "confidence": 0.95,
+      "source": "explicit_user_statement",
+      "note": "I love practical effects, the artistry behind them, and actively notice films that use them.",
+      "recorded_at": "2026-08-03"
+    }
+  ]
+}
