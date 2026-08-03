@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "model_version": "personal-taste-graph-1.0.0",
+  "profile_version": "1.0.0",
+  "registry_version": "1.0.0",
+  "signal_count": 1,
+  "learned_trait_count": 1,
+  "traits": {
+    "creeping_dread": {
+      "affinity": 1.0,
+      "confidence": 0.55,
+      "evidence_count": 1,
+      "positive_evidence_count": 1,
+      "negative_evidence_count": 0,
+      "conflict": false,
+      "supporting_films": [],
+      "contradicting_films": [],
+      "status": "provisional"
+    }
+  },
+  "source": {
+    "type": "sqlite",
+    "db": "cinema_brain.db",
+    "matched_signal_count": 1
+  }
+}
