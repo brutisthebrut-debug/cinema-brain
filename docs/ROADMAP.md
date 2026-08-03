@@ -2,506 +2,477 @@
 
 ## North Star
 
-Build a private, durable, explainable model of Daniel's cinematic taste that becomes more accurate after every watch, recommendation, rating, review, and conversation.
+Build a private, durable, explainable model of Daniel's cinematic taste that becomes more accurate after every watch, rating, review, recommendation, and conversation.
 
-Cinema Brain is not a generic movie database and not a startup requirement. It is the movie module of Daniel OS: a lifelong personal system that remembers what Daniel has seen, understands why particular films work or fail for him, and uses that evidence to make better choices in the moment.
+Cinema Brain is the movie intelligence module of Daniel OS. It should remember what Daniel has seen, understand why films work or fail for him, recommend the right unwatched film for the moment, and learn from the outcome without rewriting history.
 
-The roadmap is governed by `docs/ARCHITECTURE.md`. Every feature must have one owning layer, a stable contract, preserved provenance, versioning, independent tests, and an end-to-end reason it improves a real decision.
-
-## Product principles
+## Product doctrine
 
 1. **Memory before prediction.** Never recommend a watched film unless a rewatch is requested.
-2. **Why matters more than stars.** A one-sentence reaction can carry more useful taste evidence than a rating alone.
-3. **Explain every recommendation.** Confidence must be tied to actual evidence, not vague AI language.
-4. **Stable history, live availability.** Personal taste data is durable; streaming catalogs must be checked live.
-5. **Positive and negative taste are separate.** Disliking jump-scare spam is not the same as loving slow burns.
-6. **Mood is first-class data.** “Creepy,” “nostalgic,” “beautifully devastating,” and “background-friendly” matter as much as genre.
-7. **Human correction wins.** Daniel can override any inferred trait or recommendation outcome.
-8. **No silent data loss.** Raw exports, manual watches, reviews, list rankings, and recommendation outcomes retain provenance.
-9. **Private by default.** This is personal behavioral data and stays in a private repository.
-10. **Useful beats elaborate.** Every layer must improve an actual question Daniel asks.
-11. **Contracts before coupling.** Layers exchange typed, versioned records rather than reaching into one another’s internals.
-12. **Failures become evidence.** A poor recommendation is recorded and used to calibrate the model.
+2. **Reviewed truth before scale.** Provider or model output is evidence until a human-approved process promotes it.
+3. **Why matters more than stars.** Reactions, effects, and contradictions carry more information than ratings alone.
+4. **Explain every recommendation.** Confidence must connect to real evidence and reviewed traits.
+5. **Positive and negative taste remain separate.** Disliking one mechanism is not the same as loving its opposite.
+6. **Context is not permanent taste.** Tonight's mood and desired effect must not silently rewrite Daniel's long-term profile.
+7. **Preserve provenance and disagreement.** Raw sources, provider claims, inferences, corrections, and outcomes remain distinguishable.
+8. **Human correction wins.** Daniel can override inference without erasing the original evidence.
+9. **Private by default.** Personal behavioral and preference data stays under Daniel's control.
+10. **Intelligence before interface.** Dashboards and public features wait until recommendation quality is measurable.
+11. **Contracts before coupling.** Layers exchange typed, versioned records.
+12. **Failures become fixtures.** Every real failure should improve the benchmark, tests, or policy.
 
-## The 10x standard
+## Roadmap admission test
 
-Every roadmap item must be reviewed with these questions before implementation:
+A proposed active feature must answer at least one of these:
 
-- What real decision does this improve?
-- Which layer owns it?
-- What are its stable inputs and outputs?
-- How is provenance retained?
-- How can Daniel correct it?
-- How is it independently tested?
-- How is it tested in the full pipeline?
-- What model or schema version changes?
-- Does it duplicate another feature or create hidden coupling?
-- How can it become ten times more useful without becoming ten times harder to maintain?
+- Does it improve the Intelligence Graph?
+- Does it improve recommendation quality?
+- Does it create a measurable learning or validation signal?
+
+If not, it belongs in the ideas backlog rather than the active roadmap.
 
 ---
 
-# Architecture and dependency order
-
-The system flows in one direction:
+# System flow
 
 ```text
 Sources
-  -> Memory
-  -> Metadata
-  -> Taste
-  -> Context planning
-  -> Candidate filtering and ranking
-  -> Live availability verification
-  -> Recommendation explanation
-  -> Outcome logging
-  -> Calibration and evolution
+  -> Canonical Memory
+  -> Metadata Evidence
+  -> Reviewed Film Identity
+  -> Canonical Trait Graph
+  -> Daniel Taste Vector
+  -> Context and Request Plan
+  -> Candidate Filtering and Ranking
+  -> Live Availability Verification
+  -> Recommendation Explanation
+  -> Outcome Logging
+  -> Calibration and Taste Evolution
 ```
 
-The dashboard and conversational interface sit above this pipeline. They do not own business logic.
+Conversation, CLI, and any future dashboard are clients of this pipeline. They do not own intelligence logic.
 
-## 1. Memory layer — established
+---
 
-### Inputs
-- Letterboxd watched history
-- Ratings
-- Diary entries and rewatches
-- Watchlist
-- Likes
-- Written reviews
-- Custom and festival lists
-- Manual chat watch log
+# Completed foundation
 
-### Guarantees
-- Deterministic watched exclusion
-- Title/year reconciliation across Letterboxd URL types
-- Full source row counts and checksums
-- Manual entries merge safely with later Letterboxd refreshes
-- Validation detects malformed data and contradictions
+## Reliable memory
 
-### 10x expansion
-- Add immutable source-event identifiers.
-- Add superseding corrections rather than destructive edits.
-- Add explicit reconciliation reports during each Letterboxd refresh.
-- Add schema migrations so future changes never require rebuilding by hand.
-- Add a personal-data retention policy before additional Daniel OS modules share infrastructure.
+- Full Letterboxd export ingestion and validation
+- Canonical film identity and watched exclusion
+- Diary, ratings, reviews, likes, watchlist, and lists
+- Manual updates
+- Letterboxd RSS delta ingestion
+- CSV/RSS/manual reconciliation with replay protection
+- Safe live RSS synchronization for `dmarlin`
 
-## 2. Metadata layer
+## Durable evidence and learning
 
-Enrich each canonical film with:
-- genres and subgenres
-- directors, writers, and principal cast
-- countries and languages
-- runtime and release decade
-- production companies
-- franchise and sequel relationships
-- content descriptors
-- horror mechanisms: found footage, occult, home invasion, folk horror, cosmic horror, body horror, creature feature, slasher, possession, analog horror, liminal horror
-- formal traits: slow burn, nonlinear, ambiguous ending, minimal dialogue, long takes, dream logic, practical effects, naturalistic acting
-- emotional traits: dread, wonder, grief, loneliness, warmth, nostalgia, melancholy, catharsis, chaos, awe
+- Canonical Evidence Graph
+- Immutable provenance-aware evidence
+- Positive and negative aggregation
+- Conflict preservation
+- Model-version filtering
+- Evidence-backed Cinematic DNA
+- Frozen recommendation and outcome ledgers
+
+## Metadata Intelligence Phase 1
+
+- Replaceable provider contract and canonical metadata storage
+- Wikidata enrichment with strict title/year/film-type validation
+- Deterministic cache and safe resume
+- Compression and corrupt-cache recovery
+- Retry, pacing, rate-limit backoff, and `Retry-After` support
+- Per-film failure isolation
+- Deterministic metadata-to-Evidence extraction
+- Versioned horror benchmark seed
+- Human review worksheet and decision packet
+- Guarded benchmark candidate generation
+- Candidate validation and reviewed-regression gates
+- Successful real-data run with nine exact horror-film matches
+
+The final Golden Horror v2 release PR remains the immediate closure task before Metadata Intelligence Phase 1 is formally released.
+
+---
+
+# Active Phase — Intelligence Graph
+
+The active work is no longer more provider plumbing. It is creating a trustworthy semantic model of what films are and how Daniel experiences them.
+
+## Phase 1A — Canonical Trait Model v1
+
+Create a bounded vocabulary with explicit definitions and boundaries.
+
+### Trait families
+
+- **Emotional tone:** dread, warmth, melancholy, grief, awe, wonder, loneliness, catharsis, chaos
+- **Desired effect:** scared, comforted, moved, energized, unsettled, amused, intellectually engaged
+- **Fear mechanisms:** creeping dread, jump scares, isolation, loss of control, body violation, occult threat, uncanny realism, pursuit, confinement, contamination
+- **Narrative form:** linear, nonlinear, mystery-box, dream logic, procedural, episodic, ambiguous reality
+- **Pacing and intensity:** slow burn, escalating, relentless, quiet, meditative, uneven, front-loaded
+- **Visual and sonic style:** naturalistic, expressionistic, practical-effects-forward, long takes, handheld, found footage, sound-driven, minimal dialogue
+- **Themes:** grief, identity, intimacy, family, faith, alienation, obsession, mortality, transformation, social collapse
+- **Ending type:** closed, open, ambiguous, bleak, cathartic, twist-dependent, unresolved
+- **Viewing value:** rewatchability, conversation value, background suitability, full-attention demand
+- **Guidance:** watch when, avoid when, audience fit, tolerance requirements
 
 ### Requirements
-- Cache enriched metadata locally
-- Preserve provider, retrieval date, and confidence
-- Never overwrite explicit Daniel labels with third-party metadata
-- Allow multiple values and weighted traits
-- Keep provider adapters replaceable
-- Make enrichment resumable and idempotent
 
-### 10x expansion
-- Separate objective facts from interpretive traits.
-- Support competing metadata claims with confidence rather than choosing silently.
-- Track coverage so recommendation confidence drops when candidate metadata is thin.
-- Build reusable film embeddings only after explicit metadata and provenance are stable.
-- Add franchise, creative-collaborator, and thematic-neighborhood graphs from the same canonical records.
+- canonical IDs and aliases
+- family ownership and definitions
+- polarity and confidence
+- fact, provider interpretation, model inference, community prior, and Daniel evidence kept separate
+- contradictions allowed
+- versioned schema and migrations
+- human correction and review provenance
 
-## 3. Cinematic DNA / taste engine
+### Definition of done
 
-The taste engine models evidence at several levels.
+- Trait Model v1 validates deterministically.
+- Ambiguous overlaps have documented rules.
+- The nine reviewed horror films receive complete canonical trait profiles.
+- The schema is frozen before the recommendation engine depends on it.
 
-### Explicit signals
+## Phase 1B — Trait Authoring and Promotion
+
+```text
+Canonical film
+  -> facts and existing Evidence
+  -> candidate trait profile
+  -> review worksheet
+  -> approve / reject / quarantine
+  -> promoted canonical profile
+  -> regression gate
+```
+
+### Requirements
+
+- no hand-authored JSON required for routine review
+- every promoted trait records reviewer, reason, evidence, timestamp, and version
+- candidate generation can assist but cannot approve itself
+- rejected and quarantined traits remain auditable
+- profile history is append-only or superseded, never silently rewritten
+- failures produce regression fixtures
+
+### Definition of done
+
+- All nine benchmark films pass the authoring and promotion workflow.
+- Re-running the workflow produces the same candidate from the same inputs.
+- A taxonomy change cannot silently change reviewed historical truth.
+
+---
+
+# Next Phase — Taste Intelligence v1
+
+Taste Intelligence maps reviewed film traits and Daniel's behavior into a personal preference model.
+
+## Evidence classes
+
+### Explicit
+
 - rating
 - like
 - written review
-- one-sentence chat reaction
-- “actually scared me” / “did not scare me”
+- one-sentence reaction
+- manual correction
 - favorite or ranked-list placement
-- manual trait corrections
+- specific effect confirmation such as “actually scared me”
 
-### Behavioral signals
+### Behavioral
+
 - rewatches
-- repeated franchise viewing
-- watchlist age and eventual conversion
 - recommendation acceptance or rejection
-- completion and abandonment when available
-- clusters watched during particular periods
+- started, completed, or abandoned
+- watchlist conversion
+- repeated creators, countries, eras, and trait clusters
 
-### Initial signal weights
-- 5-star rating: +4.0
-- 4.5 stars: +3.4
-- 4 stars: +2.6
-- 3.5 stars: +1.4
-- 3 stars: +0.3
-- 2.5 stars: -0.6
-- 2 stars: -1.6
-- 1.5 stars: -2.6
-- 1 star: -3.4
-- 0.5 stars: -4.0
-- liked: +1.5
-- each rewatch beyond first: +0.8, capped
-- written review: evidence-strength multiplier, not automatic positivity
-- top-ten ranked-list placement: +2.0 to +0.5 by rank
-- explicit chat reaction: ±1 to ±4 depending on language and confidence
+### Contextual
 
-Weights remain versioned and testable. They are starting assumptions, not permanent truth.
-
-### Trait profile outputs
-For each trait:
-- affinity score
-- confidence
-- positive evidence count
-- negative evidence count
-- strongest supporting films
-- strongest contradicting films
-- trend over time
-- explicit vs inferred status
-
-### Separate profiles
-- Fear DNA
-- Emotional DNA
-- Style DNA
-- Story/theme DNA
-- Comedy DNA
-- Romance DNA
-- Comfort/nostalgia DNA
-- Director graph
-- Actor graph
-- Country/language graph
-- Decade graph
-
-### 10x expansion
-- Store every trait contribution as a first-class evidence record.
-- Distinguish “I admire this” from “I enjoyed this” and “this affected me.”
-- Model desired effect separately from general preference; wanting to be scared tonight is contextual, not permanent taste.
-- Build profile snapshots so model changes and taste evolution are not conflated.
-- Calibrate confidence by evidence diversity, not only evidence volume.
-- Detect conflicts such as high rating plus negative reaction rather than averaging them away.
-
-## 4. Mood and context engine
-
-Inputs can include:
 - current mood
 - desired emotional destination
-- energy and attention level
-- alone / dogs / friends / date
+- attention and energy
+- alone, dogs, friends, or date
 - time available
-- time of day
-- tolerance for sadness, gore, subtitles, ambiguity, or intensity
-- current streaming services
-- novelty vs comfort
+- subtitle, gore, sadness, ambiguity, and intensity tolerance
+- novelty versus comfort
 
-Example request:
+Contextual evidence expires or remains session-bound unless Daniel explicitly promotes it to stable preference.
+
+## Required distinctions
+
+- loved versus admired versus affected
+- enjoyed film versus fit the moment
+- stable preference versus growth edge
+- strong dislike versus insufficient evidence
+- current taste versus historical era
+- model uncertainty versus true contradiction
+
+## Profile outputs
+
+For every trait:
+
+- affinity
+- confidence
+- positive and negative evidence counts
+- strongest supporting films
+- strongest contradicting films
+- explicit versus inferred status
+- trend over time
+- conflict state
+- model and taxonomy versions
+
+## Definition of done
+
+- Daniel's profile is regenerated from durable canonical Evidence.
+- Every learned trait can explain its evidence trail.
+- Confidence depends on evidence diversity and agreement, not volume alone.
+- Sparse traits remain explicitly uncertain.
+- Taste snapshots can distinguish model changes from real taste drift.
+
+---
+
+# Explainable Recommendation Engine v1
+
+## Typed request plan
+
+A natural-language request becomes explicit hard filters and soft preferences.
+
+Example:
 
 > Creepy but not bleak, under two hours, full attention, on Max or Peacock, and definitely unwatched.
 
-The engine converts that into an explicit typed query plan rather than relying on freeform guessing.
+## Hard filters
 
-### 10x expansion
-- Separate current state from desired destination.
-- Remember temporary contexts without turning them into permanent preferences.
-- Support “surprise me” while still honoring hard boundaries.
-- Let Daniel save named modes such as late-night dogs, Sunday comfort, full-attention cinema, and group chaos.
-- Explain which constraints were hard filters versus soft preferences.
-
-## 5. Recommendation engine
-
-### Hard filters
-- exclude watched unless rewatch requested
-- service availability
-- runtime constraints
-- language/subtitle constraints
-- release-year constraints
+- watched status
+- runtime
+- language or subtitle requirements
 - content exclusions
+- release constraints
+- verified service availability when required
 
-### Scoring components
-- trait affinity
+## Scoring components
+
+- reviewed trait affinity
 - similarity to high-confidence favorites
-- dissimilarity from strong dislikes
-- mood fit
-- context fit
-- novelty bonus
-- underexplored-interest bonus
+- distance from strong dislikes
+- desired-effect fit
+- mood and context fit
+- novelty and exploration value
 - watchlist intent
-- critic/audience quality floor when useful
-- availability confidence
+- quality floor
+- risk penalty
+- metadata and trait coverage confidence
 
-### Output contract
+## Output contract
+
 Every recommendation includes:
+
 - predicted Daniel score
 - confidence
-- why it fits tonight
-- strongest evidence films
-- meaningful risk or caveat
-- streaming service and verification date
-- whether it came from watchlist or outside discovery
-- model versions and score components
+- why this film
+- why now
+- strongest supporting evidence
+- meaningful caveat
+- hard-filter and soft-score audit
+- why nearby alternatives ranked lower
+- service, region, and verification time
+- model and taxonomy versions
 
-### 10x expansion
-- Produce a candidate audit showing why films were rejected.
-- Generate intentionally diverse finalists rather than near-duplicates.
-- Distinguish safest pick, bold pick, and comfort pick.
-- Add counterfactual explanations: what missing evidence keeps confidence from being higher?
-- Prevent repetitive recommendation loops through recommendation-history penalties.
+## Definition of done
 
-## 6. Recommendation and feedback loop
+- only eligible unwatched films are returned by default
+- recommendations are reproducible from frozen inputs
+- candidate rejection reasons are inspectable
+- prediction and explanation are frozen before the outcome
+- Daniel can record rating and one sentence afterward
+- prediction error and context fit update the learning ledger
+
+---
+
+# Benchmark growth strategy
+
+Do not open multiple genre fronts until the horror benchmark is useful and stable.
+
+```text
+9 reviewed horror films
+  -> 25
+  -> 50
+  -> measure remaining failure classes
+  -> expand only when new evidence justifies it
+```
+
+Coverage should include:
+
+- found footage
+- psychological horror
+- folk horror
+- body horror
+- supernatural and occult
+- creature features
+- cosmic horror
+- slashers
+- horror comedy
+- international and non-English films
+- archival and recent releases
+- favorites, dislikes, rewatches, and contradictory reactions
+
+After horror reaches maturity, expand through shared trait neighborhoods rather than arbitrary genre order.
+
+---
+
+# Later Intelligence Capabilities
+
+## Context planning
+
+- temporary mood and desired destination
+- named modes such as late-night dogs, Sunday comfort, group chaos, and full-attention cinema
+- hard versus soft constraints
+
+## Taste evolution
+
+- year and era snapshots
+- first-watch versus rewatch changes
+- stable preferences versus temporary life-period clusters
+- uncertainty around personal-context correlations
+
+## Blind-spot discovery
+
+- hidden favorites outside obvious genres
+- neglected decades, countries, languages, and creators
+- thematic bridges
+- exploration budgets that balance novelty and fit
+
+## Contradiction and regret
+
+- predicted love, actual dislike
+- predicted dislike, actual love
+- admired but not enjoyed
+- good film, wrong moment
+- misleading metadata versus missing trait
+
+## Creator and cultural graphs
+
+- directors
+- writers
+- actors
+- countries and languages
+- decades
+- franchises
+- creative collaborators
+- thematic neighborhoods
+
+## Live availability
+
+Availability remains expiring operational evidence, not permanent film truth.
 
 Store:
-- recommendation timestamp
-- prompt/context
-- candidates considered
-- selected recommendation
-- predicted score and confidence
-- model versions
-- whether Daniel started and completed it
-- actual rating
-- one-sentence reaction
-- whether it scared, moved, comforted, bored, or surprised him
-- prediction error
-- lessons applied to future weights
 
-A recommendation that fails is useful training data, not a hidden embarrassment.
-
-### 10x expansion
-- Track recommendation acceptance separately from movie enjoyment.
-- Track whether the movie fit the moment even when the film itself was only average.
-- Preserve frozen prediction snapshots before learning from the outcome.
-- Require enough evidence before automatically changing global weights.
-- Surface proposed calibrations for human approval when they materially change the profile.
-
-## 7. Taste evolution
-
-Generate snapshots by year or era:
-- 2014 Daniel
-- festival years
-- grief periods
-- relationship periods
-- recovery and rebuilding periods
-- current era
-
-Track:
-- genres rising or falling
-- tolerance for ambiguity and bleakness
-- changing rating generosity
-- comfort rewatches
-- directors or countries discovered late
-- traits that remain stable across life changes
-
-This layer should observe patterns without pretending correlation proves causation.
-
-### 10x expansion
-- Separate genuine taste drift from changes in rating behavior.
-- Let Daniel define eras rather than having the system impose personal narratives.
-- Compare first-watch and rewatch reactions.
-- Detect rediscovery cycles and dormant interests.
-- Add uncertainty language around any life-context correlation.
-
-## 8. Discovery intelligence
-
-Surface:
-- favorite director Daniel may not realize is a favorite
-- actors associated with unusually high ratings
-- countries/languages with strong fit
-- neglected decades
-- hidden gems near favorite trait clusters
-- watchlist items with highest predicted score
-- movies Daniel “should” love but has not seen
-- productive contradictions: films he should have hated but loved, and vice versa
-
-### 10x expansion
-- Balance similarity with genuine expansion.
-- Create exploration budgets so novelty does not overwhelm fit.
-- Track underexplored interests only when enough positive evidence exists.
-- Build thematic bridges between genres rather than relying solely on genre similarity.
-- Explain why a discovery broadens the profile instead of merely repeating it.
-
-## 9. Regret and contradiction engine
-
-Two valuable categories:
-- **Predicted love, actual dislike**
-- **Predicted dislike, actual love**
-
-These reveal missing variables and prevent the system from becoming a taste echo chamber.
-
-### 10x expansion
-- Separate model failure, mood mismatch, availability compromise, and misleading metadata.
-- Detect films Daniel respects but would not recommend to himself.
-- Identify traits that only work in specific combinations.
-- Create contradiction clusters that suggest new hidden variables.
-
-## 10. Streaming availability
-
-Availability is queried live for the United States and never treated as permanent metadata.
-
-Maintain Daniel's current service profile separately, including temporary travel contexts such as Charlotte access versus home access.
-
-### 10x expansion
-- Record region, plan tier, verification source, and timestamp.
-- Distinguish included subscription, ads, rental, purchase, and free-library access.
-- Expire availability evidence automatically.
-- Never let stale availability lower trust in the stable taste model.
-
-## 11. Interfaces
-
-### Conversational interface
-Primary experience. Daniel asks naturally and receives grounded recommendations.
-
-### Command-line interface
-For ingestion, validation, profile generation, testing, and reproducible queries.
-
-### Personal dashboard — later
-Potential views:
-- cinematic DNA radar and trait cards
-- recent watches
-- recommendation accuracy
-- watchlist priority
-- directors and countries
-- taste evolution timeline
-- “what should I watch tonight?” control panel
-
-The dashboard is optional. The data model and conversational intelligence come first.
-
-### 10x expansion
-- Dashboard remains a thin client over the same contracts used by conversation and CLI.
-- Every recommendation can expose its evidence trail on demand.
-- Fast mobile workflow: log watch, rate, one sentence, done.
-- Add exports so Daniel remains able to leave the system with all derived data.
+- provider
+- region
+- plan tier
+- subscription, ads, rental, purchase, or free access
+- verification timestamp
+- expiration
 
 ---
 
-# Cross-cutting foundations
+# Deliberately Parked
 
-These are not separate shiny features. They are required infrastructure across every phase.
+These remain future options, not active work:
+
+- public profiles
+- social sharing and feeds
+- leaderboards
+- multi-user architecture
+- mobile application
+- browser extension
+- public API
+- marketplace
+- plugin ecosystem
+- dashboard-led development
+
+They return only after the intelligence layer produces consistently useful, measurable recommendations.
+
+---
+
+# Cross-cutting requirements
 
 ## Provenance
-Every fact, trait, prediction, correction, and outcome records where it came from.
+
+Every fact, trait, inference, correction, prediction, and outcome records its source.
 
 ## Versioning
-Schema, importer, identity policy, metadata providers, taxonomy, taste model, request parser, ranker, and explanation renderer evolve independently.
 
-## Data contracts
-Typed contracts define trait evidence, watch requests, score components, availability evidence, and recommendation results.
+Schema, importers, identity policy, providers, taxonomy, authoring model, taste model, request parser, ranker, and explanation renderer evolve independently.
+
+## Fault tolerance
+
+- bounded work
+- retry and backoff
+- safe resume
+- partial-result preservation
+- diagnostic artifacts
+- corrupt-cache quarantine
+- no single record aborts a recoverable batch
 
 ## Testing
-- Unit tests for pure functions and contracts
-- Integration tests for ingestion through profile generation
-- Golden scenarios based on real requests
-- Regression tests for every discovered failure
-- No network dependency in unit tests
 
-## Observability
-Generated runs report coverage, warnings, confidence gaps, candidate counts, rejection reasons, and prediction errors.
+- unit tests for pure rules
+- integration tests across layers
+- real-data bounded workflows
+- golden scenarios based on Daniel's actual requests
+- regression tests for every discovered failure
+- no network dependency in required unit tests
 
 ## Human control
-Explicit Daniel corrections always supersede inference without erasing the original evidence.
+
+Explicit corrections supersede inference while preserving the original evidence and review history.
 
 ---
 
-# Delivery phases
+# Current execution queue
 
-## Phase 0 — Reliable memory ✅
-- Full export ingestion
-- Validation
-- Watched exclusion
-- Manual watch log
+1. Commit and merge the successful Golden Horror v2 candidate release.
+2. Implement Canonical Trait Model v1.
+3. Build the trait authoring worksheet, decision packet, promotion, and regression path.
+4. Author the nine reviewed horror-film profiles.
+5. Generate Taste Intelligence v1 from canonical traits and durable Evidence.
+6. Run the first explainable recommendation against Daniel's real watchlist and context.
+7. Record the outcome and calibrate against actual response.
+8. Expand the horror benchmark to 25 and then 50 based on measured gaps.
 
-## Phase 1 — Taste engine foundation (active)
-- Versioned signal weights
-- Explicit trait vocabulary
-- Film-level evidence scoring
-- Profile JSON generation
-- Initial reaction parser for manual notes
-- Tests for positive, negative, and rewatch weighting
-- Typed cross-layer contracts
-- Integrated architecture and 10x review gate
-
-## Phase 2 — Metadata enrichment
-- Provider adapter and cache
-- Core film metadata
-- Horror, style, emotion, and theme traits
-- Provenance and confidence
-- Coverage reporting and resumable enrichment
-
-## Phase 3 — Explainable recommendations
-- Typed query constraints
-- Candidate audit and hard-filter reasons
-- Candidate ranking
-- Predicted Daniel score
-- Evidence-based explanations
-- Watchlist and discovery modes
-
-## Phase 4 — Live availability
-- Service profile
-- Current U.S. availability checks
-- Travel-context service overrides
-- Expiring verification records
-
-## Phase 5 — Feedback learning
-- Recommendation log
-- Frozen prediction snapshots
-- Prediction-versus-actual analysis
-- Weight calibration
-- Explicit corrections
-
-## Phase 6 — Graphs and evolution
-- Director and actor graphs
-- Country/language and decade graphs
-- Annual taste snapshots
-- contradictions and regret
-
-## Phase 7 — Dashboard
-- Read-only first
-- Private deployment
-- Fast “tonight” workflow
-- Visual exploration without replacing conversation
-
----
-
-# Immediate build queue
-
-1. Convert inferred trait contributions into durable evidence records with provenance.
-2. Add recommendation-outcome and frozen-prediction storage.
-3. Implement metadata-provider abstraction and local cache.
-4. Add a typed request parser and candidate audit.
-5. Create first horror-focused profile using explicit evidence from *Undertone*.
-6. Test a recommendation against Daniel's live response to *Vicious*.
-7. Add the Charlotte late-night dogs golden integration scenario.
+No additional provider, governance, dashboard, social, or marketplace work should interrupt this sequence unless a real blocker requires it.
 
 ---
 
 # First explicit live evidence
 
 ## Undertone (2025)
+
 - Watched: August 2, 2026
 - Rating: 4 stars
 - Reaction: genuinely scary; created a Blair Witch-like sense of creeping dread and unease
-- Initial traits:
+- Initial evidence:
   - creeping dread: strong positive
   - found-footage-like realism: positive
   - sustained uncertainty: positive
   - atmosphere: strong positive
   - genuine fear response: confirmed
 
-This is the first manually captured example of the system learning *why* a movie worked, not merely that it received four stars.
+This remains the first manually captured example of Cinema Brain learning why a film worked rather than merely storing its rating.
 
 ---
 
 # Definition of done for Cinema Brain v1
 
-Cinema Brain v1 is complete when Daniel can ask for a movie using mood, context, runtime, and active services, and receive only unwatched candidates with:
+Cinema Brain v1 is complete when Daniel can ask naturally for a film using mood, desired effect, context, runtime, and active services, and receive eligible unwatched candidates with:
+
 - current availability
 - predicted personal score
-- confidence
-- evidence-based explanation
+- calibrated confidence
+- reviewed-trait explanation
 - a meaningful caveat
+- candidate audit and score components
 - model-version traceability
 
-After watching, Daniel can provide a rating and one sentence, and the system immediately updates its durable profile without requiring a full Letterboxd export.
+After watching, Daniel can provide a rating and one sentence. Cinema Brain records the result, updates durable Evidence, measures prediction error, and improves future recommendations without requiring a full Letterboxd export.
