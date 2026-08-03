@@ -62,6 +62,25 @@ jobs:
           )
           PY
 
+      - name: Run leave-one-film-out validation
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from cinema_brain.persisted_taste_signals import load_persisted_signals
+          from cinema_brain.taste_validation import leave_one_film_out_validation
+
+          profiles = json.loads(Path('config/canonical_horror_profiles_v1_reviewed.json').read_text(encoding='utf-8'))
+          explicit = json.loads(Path('config/daniel_explicit_trait_preferences_v1.json').read_text(encoding='utf-8'))
+          signals = load_persisted_signals(Path('cinema_brain.db'), profiles)
+          validation = leave_one_film_out_validation(profiles, signals, explicit)
+          Path('artifacts/leave_one_film_out_validation_v1.json').write_text(
+              json.dumps(validation, indent=2, ensure_ascii=False),
+              encoding='utf-8',
+          )
+          PY
+
       - name: Verify intelligence artifacts
         run: |
           python - <<'PY'
@@ -70,6 +89,7 @@ jobs:
 
           graph = json.loads(Path('artifacts/personal_taste_graph_v1.json').read_text(encoding='utf-8'))
           ranking = json.loads(Path('artifacts/canonical_film_taste_ranking_v1.json').read_text(encoding='utf-8'))
+          validation = json.loads(Path('artifacts/leave_one_film_out_validation_v1.json').read_text(encoding='utf-8'))
 
           if graph.get('signal_count', 0) < 1:
               raise SystemExit('no canonical benchmark films matched persisted history')
@@ -82,6 +102,14 @@ jobs:
               raise SystemExit(f'invalid ranking sequence: {ranks}')
           if not any(film.get('active_trait_count', 0) > 0 for film in ranking['films']):
               raise SystemExit('ranking contains no active trait evidence')
+          if validation.get('fold_count') != graph.get('signal_count'):
+              raise SystemExit(
+                  f"held-out fold count {validation.get('fold_count')} does not match signal count {graph.get('signal_count')}"
+              )
+          if not validation.get('folds'):
+              raise SystemExit('held-out validation produced no folds')
+          if any(fold.get('confidence', 0) < 0 or fold.get('trait_coverage', 0) < 0 for fold in validation['folds']):
+              raise SystemExit('held-out validation contains invalid confidence or coverage')
 
           print(json.dumps({
               'signal_count': graph['signal_count'],
@@ -90,6 +118,9 @@ jobs:
               'top_film': ranking['films'][0]['title'],
               'top_score': ranking['films'][0]['taste_score'],
               'top_confidence': ranking['films'][0]['confidence'],
+              'held_out_folds': validation['fold_count'],
+              'direction_accuracy': validation['direction_accuracy'],
+              'mean_absolute_error': validation['mean_absolute_error'],
           }, indent=2))
           PY
 
