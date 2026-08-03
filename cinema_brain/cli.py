@@ -9,6 +9,7 @@ from .golden_review_workflow import build_review_template, compile_review_decisi
 from .ingest import ingest
 from .metadata_enrichment import enrich_films, write_enrichment_report
 from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
+from .persisted_taste_signals import build_persisted_personal_taste_graph
 from .profile_review_workflow import build_review_worksheet, compile_review, promote_reviewed_profiles
 from .recommend import recommend
 from .report import build_report
@@ -27,6 +28,7 @@ def parser() -> argparse.ArgumentParser:
     sub.add_parser("validate")
     r = sub.add_parser("report"); r.add_argument("--output", default="reports/baseline_analysis.md")
     taste = sub.add_parser("taste"); taste.add_argument("--taxonomy", default="config/traits.json"); taste.add_argument("--output", default="profiles/taste_profile.json")
+    personal_taste = sub.add_parser("personal-taste-graph"); personal_taste.add_argument("--profiles", default="config/canonical_horror_profiles_v1_reviewed.json"); personal_taste.add_argument("--output", default="profiles/personal_taste_graph_v1.json")
     rec = sub.add_parser("recommend"); rec.add_argument("--limit", type=int, default=10); rec.add_argument("--min-rating", type=float, default=0.0); rec.add_argument("--genre")
     rss = sub.add_parser("sync-rss"); rss.add_argument("--username"); rss.add_argument("--feed-url"); rss.add_argument("--dry-run", action="store_true"); rss.add_argument("--output", default="reports/rss_sync.json")
     enrich = sub.add_parser("enrich-metadata"); enrich.add_argument("--provider", choices=("wikidata",), default="wikidata"); enrich.add_argument("--film-key", action="append", dest="film_keys"); enrich.add_argument("--limit", type=int, default=10); enrich.add_argument("--cache-dir", default="data/cache/metadata"); enrich.add_argument("--refresh", action="store_true"); enrich.add_argument("--output", default="reports/metadata_enrichment.json")
@@ -49,6 +51,7 @@ def main() -> int:
         errors, warnings = validate(db); print(json.dumps({"errors": errors, "warnings": warnings}, indent=2)); return 1 if errors else 0
     if args.command == "report": print(build_report(db, Path(args.output))); return 0
     if args.command == "taste": print(json.dumps(build_taste_profile(db, Path(args.taxonomy), Path(args.output)), indent=2, ensure_ascii=False)); return 0
+    if args.command == "personal-taste-graph": print(json.dumps(build_persisted_personal_taste_graph(db, Path(args.profiles), Path(args.output)), indent=2, ensure_ascii=False)); return 0
     if args.command == "recommend": print(json.dumps(recommend(db, args.limit, args.min_rating), indent=2)); return 0
     if args.command == "sync-rss":
         report = sync_rss(db, username=args.username, feed_url=args.feed_url, dry_run=args.dry_run); write_report(report, Path(args.output) if args.output else None); print(json.dumps(report.to_dict(), indent=2)); return 0
