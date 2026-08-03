@@ -1,172 +1,239 @@
 # Cinema Brain Roadmap Status
 
-Updated: 2026-08-02
+Updated: 2026-08-03
 
-This file is the execution companion to `docs/ROADMAP.md`. The roadmap remains the product vision; this file records what is actually implemented and validated.
+This file is the execution companion to `docs/ROADMAP.md`. The roadmap defines product direction; this file records what is implemented, validated, active, and deliberately parked.
 
 ## Canonical project references
 
+- `docs/ROADMAP.md` — product and engineering sequence
 - `docs/VISION.md` — Daniel OS destination and Cinema Brain's role as reference implementation
-- `docs/FOUNDING_PRINCIPLES.md` — permanent doctrine, Forever Test, and architecture fitness checks
-- `docs/ROADMAP_GOVERNANCE.md` — roadmap standards, definitions of done, and engineering metrics
-- `docs/METADATA_INTELLIGENCE.md` — multi-source enrichment architecture and rollout blueprint
-- `docs/SOURCE_REGISTRY.md` — provider capabilities, licensing, restrictions, and replacement plans
-- `docs/GOLDEN_DATASET.md` — human-reviewed metadata benchmark and quality gates
-- `docs/DECISIONS.md` — chronological product and operating decisions
-- `docs/RELEASE_NOTES.md` — shipped capabilities, lessons, accepted debt, and version history
+- `docs/FOUNDING_PRINCIPLES.md` — permanent doctrine and architecture fitness checks
+- `docs/ROADMAP_GOVERNANCE.md` — definitions of done and roadmap standards
+- `docs/METADATA_INTELLIGENCE.md` — provider and enrichment architecture
+- `docs/SOURCE_REGISTRY.md` — source capabilities, licensing, restrictions, and replacement plans
+- `docs/GOLDEN_DATASET.md` — reviewed benchmark policy and quality gates
+- `docs/DECISIONS.md` — chronological decisions
+- `docs/RELEASE_NOTES.md` — shipped capabilities and lessons
 - `docs/TECHNICAL_DEBT.md` — intentional deferrals and repayment triggers
-- `docs/adr/` — detailed architecture decision records
+- `docs/adr/` — architecture decision records
 
 ## Operating rules
 
-- Build capabilities rather than isolated features.
-- Build before expanding the plan; change the roadmap when implementation teaches us something.
-- Apply the Forever Test before accepting major complexity.
-- Every subsystem remains replaceable behind typed contracts.
-- Every brain should be independently excellent but collectively smarter through explicit contracts and permissions.
-- Explainability, provenance, privacy, and human correction are non-negotiable.
-- External providers contribute evidence; no provider is treated as truth.
-- Engine quality comes before dashboard work.
-- Every completed milestone records what was learned, which assumptions changed, and what duplicate work became unnecessary.
-- Major architectural decisions are recorded under `docs/adr/` and summarized in `docs/DECISIONS.md`.
-- Intentional deferrals are recorded in `docs/TECHNICAL_DEBT.md`.
-- Engineering releases are recorded in `docs/RELEASE_NOTES.md`.
-- No item is marked complete until the full real-data validation pipeline passes.
-- Run an architecture fitness check after roughly 10–20 meaningful milestones, or sooner when complexity warrants it.
+- Build capabilities, not disconnected features.
+- Reviewed truth outranks inferred truth.
+- External providers contribute evidence; no provider is authoritative by itself.
+- Canonical data and provenance must remain separate from raw provider payloads.
+- Human review is required before benchmark or canonical-trait promotion.
+- Workflows must be bounded, resumable, fault tolerant, and diagnostic when partially unsuccessful.
+- Every subsystem remains replaceable behind typed, versioned contracts.
+- Preserve disagreements and negative evidence rather than averaging them away.
+- Engine and recommendation quality come before interface expansion.
+- A feature enters the active roadmap only when it improves the Intelligence Graph, recommendation quality, or a measurable learning outcome.
+- No milestone is complete until its real-data path is validated.
+- After every two or three infrastructure slices, identify and build the user-visible intelligence the infrastructure unlocked.
 
 ## Foundation epic — complete
 
-- Reliable Letterboxd memory, validation, watched exclusion, and manual watch log
-- Taste-engine foundation and Evidence-backed Cinematic DNA
-- Durable learning ledger and recommendation outcome storage
-- Metadata contracts and canonical SQLite persistence
-- Evidence Graph foundation, provenance, conflicts, and durable storage
-- Letterboxd RSS raw delta ledger with parsing, deduplication, and edit detection
-- Canonical CSV/RSS/manual reconciliation with source precedence and replay protection
-- Safe live Letterboxd RSS synchronization command for `dmarlin`
-- Controlled GitHub Actions workflow with durable JSON RSS state
-- First successful live Letterboxd synchronization and private artifact generation
+- Reliable Letterboxd ingestion, validation, watched exclusion, and manual watch logging
+- CSV, RSS, and manual-source reconciliation with replay protection
+- Safe live Letterboxd RSS synchronization for `dmarlin`
+- Canonical SQLite film memory and provider-neutral metadata contracts
+- Durable Evidence Graph with provenance, conflicts, deduplication, and model versions
+- Evidence-backed Cinematic DNA and durable recommendation-outcome storage
+- Replaceable Wikidata enrichment with cache, compression handling, retry, pacing, and rate-limit recovery
+- Per-film failure isolation and diagnostic artifact preservation
 
-## Milestone: Cinema Brain became a living system
+## Metadata Intelligence Phase 1 — complete
 
-The first successful `dmarlin` RSS workflow established a continuously refreshable path from real-world viewing activity into durable memory, canonical reconciliation, validation, reports, and Cinematic DNA. CSV remains the historical authority; RSS provides incremental activity.
-
-This milestone is recorded as engineering release **v0.3 — Living Foundation**.
-
-## Daniel OS reference architecture
-
-Cinema Brain is the first complete implementation of the shared lifecycle:
+The first bounded, real-data metadata system now works end to end:
 
 ```text
-Source
-  -> Canonical Identity
-  -> Evidence
-  -> Learning
-  -> Prediction
-  -> Outcome
-  -> Calibration
+Letterboxd memory
+  -> benchmark-driven film selection
+  -> Wikidata candidate discovery
+  -> strict local title/year/film validation
+  -> canonical metadata persistence
+  -> deterministic Evidence extraction
+  -> human review worksheet
+  -> version-bound decision packet
+  -> guarded promotion candidate
+  -> regression validation
 ```
 
-Future modules may specialize their domain models, but should reuse these capabilities and preserve the same guarantees around provenance, explainability, correction, privacy, versioning, and validation.
+Validated outcomes:
 
-## Active epic — Metadata Intelligence
+- nine watched horror benchmark films selected correctly
+- nine of nine enriched successfully
+- nine exact title/year matches at confidence 1.0
+- zero provider misses and zero failed films in the successful run
+- `[REC]` correctly remains absent rather than being replaced by an unrelated film
+- the completed nine-film review worksheet is stored on `review/golden-horror-v1-approvals`
+- the guarded candidate workflow successfully compiled decisions and generated the promotion artifact
 
-### Active validation: Wikidata provider and bounded enrichment
+## Immediate release task — finish Golden Horror v2
 
-The first licensing-compatible provider slice now includes:
+The candidate workflow has succeeded, but the generated candidate is not considered released truth until it is committed, validated in a normal pull request, and merged.
 
-- a read-only Wikidata adapter using open structured data
-- mandatory descriptive User-Agent headers and conservative request behavior
-- exact title, release-year, and film-type identity gates
-- retry/backoff for rate limits and transient failures
-- normalized genres, directors, cast, countries, languages, runtime, and main subjects
-- no API key or private credential requirement
-- bounded enrichment by explicit canonical film keys or a recent-watch limit
-- deterministic local metadata caching and canonical SQLite persistence
-- per-film miss and failure reporting without abandoning the rest of a batch
-- safe resume through the existing cache
-- hermetic provider and enrichment tests with no network dependency
-- a CLI command: `enrich-metadata`
+Definition of done:
 
-### Multi-source target architecture
+1. Retrieve the successful candidate artifact.
+2. Verify its integrity manifest and source-to-candidate patch.
+3. Commit the promoted benchmark and decision packet on a release branch.
+4. Run candidate validation and reviewed-benchmark regression in CI.
+5. Merge the release PR.
+6. Record the release in `docs/RELEASE_NOTES.md`.
 
-Metadata Intelligence will use narrow, replaceable source roles rather than one dominant provider:
+This is the final closure task for Metadata Intelligence Phase 1, not a new infrastructure epic.
 
-1. **Wikidata** for canonical open facts and identifier bridging.
-2. **Optional IMDb downloadable datasets** for private factual reinforcement, alternate titles, credits, runtime, and rating priors, gated by current eligibility and a removable adapter.
-3. **MovieLens Tag Genome or an equivalent approved source** for semantic community priors.
-4. **Wikipedia** only after structured sources are measured, for narrative, theme, setting, and production-technique extraction with revision and license provenance.
-5. **DBpedia** only where it materially improves structured coverage.
-6. **Library of Congress and Internet Archive** as specialist historical and archival sources.
-7. **Live availability providers** remain a separate expiring evidence layer, not permanent film metadata.
+## Active epic — Intelligence Graph / Canonical Trait Authoring
 
-Rejected or quarantined sources include providers with conflicting AI-use terms, unofficial streaming endpoints, scraped reviews or subtitles with unclear rights, and anonymous dumps without lineage.
+The active goal is to move from trustworthy identity and metadata into trustworthy meaning.
 
-### Current production sequence
+### Milestone 1 — Canonical Trait Model v1
 
-1. Validate and merge the Wikidata provider and bounded enrichment service.
-2. Add the provider/licensing registry to executable configuration.
-3. Build the first 50-film horror-heavy golden dataset.
-4. Run a small real horror sample and manually review every identity match and confidence explanation.
-5. Turn every discovered mismatch into a regression fixture.
-6. Expand normalization only where the sample proves a real gap.
-7. Add optional private factual reinforcement behind a removable adapter.
-8. Add a semantic tag layer and measure its incremental value.
-9. Evaluate narrative extraction only after structured and semantic sources are measured.
-10. Convert selected facts and horror signals into provenance-aware Evidence records.
-11. Generate Horror DNA from explicit reactions plus enriched film evidence.
-12. Expand to the full library only after golden-dataset quality gates pass.
+Design a bounded, reviewed vocabulary covering:
 
-### Required capabilities
+- emotional tone and emotional destination
+- narrative structure
+- fear mechanisms
+- themes
+- visual and sonic style
+- pacing and intensity
+- ending type
+- realism and performance style
+- rewatch value
+- conversation value
+- `watch when` and `avoid when` guidance
 
-- provider and licensing registry
-- field-level provenance and source identifiers
-- fact versus interpretation versus community-prior versus Daniel-evidence classification
-- explainable identity confidence
-- quarantine for low-confidence matches
-- preserved provider disagreements
-- provider health metrics and schema-drift visibility
-- time-aware retrieval and taste-era snapshots
-- safe resume, retry queues, and bounded batches
-- benchmark-driven quality gates before broad enrichment
+Definition of done:
 
-### Definition of done
+- schema and validation rules are versioned
+- trait families, aliases, polarity, confidence, and evidence classes are explicit
+- ambiguous or overlapping traits have documented boundaries
+- the nine approved horror films have complete reviewed profiles
+- the v1 vocabulary is frozen before recommendation work depends on it
 
-Metadata Intelligence is complete when enrichment is replaceable, reproducible, cached, resumable, provenance-aware, license-aware, confidence-aware, identity-safe, conflict-visible, provider-health measurable, protected by a human-reviewed golden dataset, and capable of materially expanding the Horror DNA profile through the full real-data CI pipeline.
+### Milestone 2 — Trait Authoring Pipeline
 
-## Engineering metrics now tracked as first-class roadmap criteria
+```text
+Film facts and Evidence
+  -> candidate traits
+  -> reviewer worksheet
+  -> approve / reject / quarantine
+  -> canonical trait profile
+  -> versioned promotion
+  -> regression gate
+```
+
+The pipeline may suggest traits, but it cannot declare its own output reviewed truth.
+
+Definition of done:
+
+- authoring is reproducible and does not require hand-editing JSON
+- every promoted trait retains evidence, reviewer, reason, timestamp, and model version
+- negative and contradictory traits remain representable
+- later taxonomy changes cannot silently rewrite historical profiles
+
+### Milestone 3 — Taste Intelligence v1
+
+Build Daniel's taste vector only after reviewed film traits exist.
+
+Required distinctions:
+
+- loved versus admired versus affected
+- stable preference versus tonight's desired effect
+- rating, like, rewatch, review, and explicit reaction as separate signals
+- positive and negative evidence
+- current taste versus era-specific taste
+- confidence based on evidence diversity, not volume alone
+
+Definition of done:
+
+- a versioned Daniel taste profile is generated from canonical Evidence
+- every affinity can explain its strongest supporting and contradicting films
+- low-evidence traits remain explicitly uncertain
+- profile regeneration is deterministic
+
+### Milestone 4 — Explainable Recommendation Engine v1
+
+Every recommendation must answer:
+
+- Why this film?
+- Why now?
+- Which reviewed traits support it?
+- What is the meaningful risk?
+- Why did nearby alternatives rank lower?
+
+Definition of done:
+
+- watched films are excluded unless a rewatch is requested
+- hard filters and soft preferences are visibly separated
+- candidates receive auditable score components
+- predictions, confidence, and explanations are frozen before outcomes are known
+- the first live recommendations are evaluated against Daniel's actual reactions
+
+### Milestone 5 — Horror benchmark expansion
+
+Expand deliberately rather than opening multiple genre fronts:
+
+```text
+9 reviewed films
+  -> 25
+  -> 50
+  -> measure gaps
+  -> expand further only when new failure classes justify it
+```
+
+Prioritize diversity across found footage, psychological, folk, body, supernatural, creature, cosmic, slasher, international, archival, recent, loved, disliked, and contradictory examples.
+
+## Later intelligence phases
+
+- Taste drift and era snapshots
+- Blind-spot and hidden-favorite discovery
+- Contradiction and regret analysis
+- Context and mood planning
+- Live availability as expiring operational evidence
+- Director, actor, country, language, decade, and thematic graphs
+
+These begin only when the reviewed trait and recommendation foundations make them measurable.
+
+## Deliberately parked
+
+- Public profiles
+- Social feeds and sharing
+- Leaderboards
+- Mobile application
+- Browser extension
+- Public API or marketplace
+- Plugin ecosystem
+- Broad multi-user architecture
+- Dashboard-led development
+
+These ideas remain valid future options, but they do not belong in the active sequence until the intelligence layer is mature.
+
+## Engineering metrics
 
 - canonical film and viewing-event counts
+- source-reconciliation accuracy
 - metadata coverage and field completeness
-- unresolved identity, false-positive, duplicate, stale, and conflict rates
-- low-confidence quarantine rate
-- provider success, latency, retry, and schema-drift signals
-- evidence count, class, and source diversity
-- sync reliability and duration
-- golden-dataset accuracy and regression count
-- test and regression coverage
-- recommendation acceptance, completion, confidence calibration, and prediction error when ranking becomes active
+- false-positive, miss, quarantine, retry, and provider-failure rates
+- reviewed benchmark size and regression count
+- canonical trait coverage and reviewer disagreement
+- Evidence count, diversity, conflict, and provenance completeness
+- recommendation acceptance and completion
+- predicted-versus-actual rating error
+- confidence calibration
+- explanation usefulness
+- repeat-recommendation and stale-availability rates
 
-## Learned / changed
+## Current execution order
 
-- A workflow artifact alone is not durable state because artifacts expire.
-- Committing a generated SQLite database would be opaque and merge-hostile.
-- A small versioned JSON RSS ledger provides durable, reviewable, replayable state while the database remains reproducible.
-- The first live workflow exposed missing test dependencies; the regression is now covered and the production sync passes.
-- CSV exports remain the historical correction mechanism; RSS is the incremental delta stream.
-- TMDB was rejected after terms review.
-- Provider search cannot be trusted by title alone; exact release-year and film-type checks are mandatory before persistence.
-- False-positive identity matches are more damaging than metadata misses.
-- Community tags are priors, not Daniel preferences.
-- External facts, interpretations, community opinions, and Daniel evidence must remain separate evidence classes.
-- Conversation, CLI, future dashboard, and other Daniel OS modules will consume one stable recommendation interface rather than duplicate ranking logic.
-- Durable vision, principles, decisions, release notes, debt, registries, benchmarks, and ADRs prevent important reasoning from living only in chat.
+1. Finish and merge the Golden Horror v2 release candidate.
+2. Define Canonical Trait Model v1.
+3. Author and promote reviewed trait profiles for the nine horror films.
+4. Build Taste Intelligence v1 from canonical traits and durable Evidence.
+5. Build the first explainable recommendation run.
+6. Expand the reviewed horror benchmark to 25 and then 50 films based on measured gaps.
 
-## Then
-
-1. Add typed mood/request parsing and candidate rejection audits.
-2. Build the first explainable ranking run against Daniel's watchlist.
-3. Add recommendation evaluation and calibration against actual outcomes.
-4. Add live availability verification only after ranking can operate independently of it.
-5. Build discovery, contradiction, regret, and taste-evolution capabilities.
-6. Delay dashboard work until recommendation and explanation quality are measurable.
+No additional provider, workflow-governance, interface, or social work should interrupt this sequence unless a real failure blocks it.
