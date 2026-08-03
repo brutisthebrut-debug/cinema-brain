@@ -49,6 +49,34 @@ jobs:
           --profiles config/canonical_horror_profiles_v1_reviewed.json
           --output artifacts/personal_taste_graph_v1.json
 
+      - name: Apply explicit taste preferences
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from cinema_brain.taste_validation import apply_explicit_preferences
+
+          graph_path = Path('artifacts/personal_taste_graph_v1.json')
+          preferences_path = Path('config/daniel_explicit_trait_preferences_v1.json')
+          graph = json.loads(graph_path.read_text(encoding='utf-8'))
+          preferences = json.loads(preferences_path.read_text(encoding='utf-8'))
+          result = apply_explicit_preferences(graph, preferences)
+          graph_path.write_text(
+              json.dumps(result, indent=2, ensure_ascii=False),
+              encoding='utf-8',
+          )
+          practical = result['traits']['practical_effects']
+          if practical['affinity'] <= 0:
+              raise SystemExit('explicit practical-effects preference was not applied')
+          if practical.get('status') != 'explicitly_confirmed':
+              raise SystemExit('practical-effects preference is not explicitly confirmed')
+          print({
+              'explicit_preference_version': result.get('explicit_preference_version'),
+              'practical_effects_affinity': practical['affinity'],
+              'practical_effects_confidence': practical['confidence'],
+          })
+          PY
+
       - name: Rank eligible unwatched horror candidates
         run: |
           python - <<'PY'
@@ -76,6 +104,11 @@ jobs:
           import json
           from pathlib import Path
 
+          graph = json.loads(Path('artifacts/personal_taste_graph_v1.json').read_text(encoding='utf-8'))
+          practical = graph['traits']['practical_effects']
+          if practical['affinity'] <= 0 or practical.get('status') != 'explicitly_confirmed':
+              raise SystemExit('ranking used a graph without the explicit practical-effects preference')
+
           path = Path('artifacts/unwatched_horror_ranking_v1.json')
           result = json.loads(path.read_text(encoding='utf-8'))
           required = {
@@ -101,6 +134,7 @@ jobs:
               'recommended_count': result['recommended_count'],
               'abstained_count': result['abstained_count'],
               'watched_excluded_count': result['watched_excluded_count'],
+              'explicit_preference_version': graph.get('explicit_preference_version'),
           }, indent=2))
           PY
 
