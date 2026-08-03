@@ -6,7 +6,7 @@ This companion roadmap tracks measurable increases in Cinema Brain intelligence.
 
 ## Brain v0.1 — Canonical Horror Foundation
 
-Status: promotion in progress
+Status: complete and merged to `main`
 
 Includes:
 
@@ -17,7 +17,7 @@ Includes:
 - guarded profile promotion
 - canonical review UI
 - Cinema Brain Studio foundation
-- GitHub Pages deployment path
+- optional GitHub Pages deployment path
 
 Definition of done:
 
@@ -29,19 +29,37 @@ Definition of done:
 
 ## Brain v0.2 — Personal Taste Graph
 
-Status: next active release
+Status: engine complete; calibration evidence remains an ongoing input
 
 Goal: convert Daniel's durable film evidence into a versioned, explainable taste model.
 
-Deliverables:
+Shipped:
 
-1. Build a deterministic user-to-trait affinity model.
-2. Keep positive evidence, negative evidence, contradictions, and uncertainty separate.
-3. Weight explicit ratings, likes, written reactions, rewatches, and outcome evidence distinctly.
-4. Produce supporting and contradicting films for every learned affinity.
-5. Add model and taxonomy versions to every generated taste profile.
-6. Add regression fixtures using Daniel's real history.
-7. Expose the first taste profile through Cinema Brain Studio only after the engine output is stable.
+1. Deterministic user-to-trait affinity model.
+2. Separate positive evidence, negative evidence, contradictions, and uncertainty.
+3. Distinct weighting for ratings, likes, rewatches, written reactions, outcomes, and explicit preferences.
+4. Supporting and contradicting films for learned affinities.
+5. Versioned personal taste graph artifacts generated from persisted history.
+6. Explainable scoring of the nine canonical horror films.
+7. Leave-one-film-out validation with positive, neutral, and negative outcomes.
+8. Abstention when coverage or active evidence is too thin.
+9. Single-trait dominance detection.
+10. Explicit preference correction that preserves provenance.
+11. Benchmark reaction calibration that separates overall film enjoyment from admiration of individual craft traits.
+12. Internal calibration Studio tooling, intentionally paused as optional tooling rather than a production dependency.
+
+Evidence from the first production validation:
+
+- nine benchmark folds
+- five eligible predictions
+- four abstentions
+- two correct eligible classifications
+- calibrated mean absolute error of 0.602
+- four single-trait-dominated predictions
+
+Interpretation:
+
+The engine is deterministic, explainable, and appropriately willing to abstain. The current benchmark remains too small and several imported watch records lack strong reaction evidence. Brain v0.3 must therefore preserve confidence limits and avoid presenting sparse predictions as certainty.
 
 Definition of done:
 
@@ -49,25 +67,100 @@ Definition of done:
 - every affinity has an inspectable evidence trail
 - sparse traits remain uncertain rather than overfit
 - Daniel-specific reactions remain distinguishable from general film truth
-- the profile can score the nine canonical horror films without hidden prompt logic
+- the profile can score canonical films without hidden prompt logic
+- validation can abstain instead of manufacturing confidence
 
-## Brain v0.3 — Explainable Recommendations
+## Brain v0.3 — Recommendation Intelligence
 
-Goal: rank eligible unwatched films using canonical traits and the personal taste graph.
+Status: active production release
+
+Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
+
+### Milestone 1 — Versioned recommendation corpus
+
+Build a curated horror-first candidate pool before attempting broad catalog search.
+
+Deliverables:
+
+- versioned candidate corpus contract
+- canonical identity and duplicate validation
+- watched and already-known exclusion
+- required metadata and trait coverage report
+- provenance for every candidate trait profile
+- deterministic corpus build
+- initial small evaluation corpus before expansion to hundreds of films
+
+Definition of done:
+
+- every candidate has one canonical film identity
+- every scored trait resolves to the canonical registry
+- invalid or insufficiently covered films are quarantined rather than silently scored
+- corpus builds are reproducible from frozen inputs
+
+### Milestone 2 — Explainable recommendation ranking
 
 Deliverables:
 
 - typed request planning
 - hard-filter and soft-preference separation
+- candidate retrieval from the versioned corpus
 - trait-based film similarity
 - personal-fit score components
-- calibrated confidence
+- confidence and coverage reported separately
+- diversity and novelty controls
 - why-this, why-now, caveat, and alternative explanations
-- frozen prediction before outcome capture
+- frozen prediction record before outcome capture
+- abstention when evidence is insufficient
+
+A recommendation must distinguish:
+
+- liking a craft element from liking the whole film
+- strong learned evidence from provisional evidence
+- positive fit from uncertainty
+- close similarity from useful discovery
+
+### Milestone 3 — Recommendation validation
+
+Primary metrics:
+
+- Precision@5
+- Precision@10
+- recommendation acceptance
+- recommendation completion
+- predicted-versus-actual error
+- confidence calibration
+- diversity
+- novelty
+- explanation coverage
+- abstention quality
+
+North-star metric: **Recommendation Trust**
+
+> If Cinema Brain recommends five films, how many is Daniel genuinely glad he watched?
+
+Initial release gate:
+
+- run a small, frozen unwatched candidate batch
+- preserve predictions before Daniel reacts
+- collect outcomes without rewriting the original prediction
+- inspect every miss and overconfident recommendation
+- do not claim production-quality recommendation accuracy from the nine-film training benchmark
+
+### Milestone 4 — Continuous learning
+
+Deliverables:
+
+- recommendation outcome capture
+- focused post-watch questions
+- graph updates from overall enjoyment and trait-specific reactions
+- preference drift snapshots
+- contradiction and regret analysis
+- confidence recalibration
+- deterministic recommendation regression fixtures
 
 ## Brain v0.4 — Blind Spots and Calibration
 
-Goal: identify likely hidden favorites and measure whether the brain is improving.
+Goal: identify likely hidden favorites and measure whether the brain is improving over time.
 
 Deliverables:
 
@@ -77,6 +170,7 @@ Deliverables:
 - recommendation regression
 - taste drift snapshots
 - regret and contradiction analysis
+- cross-cluster discovery without collapsing into popularity ranking
 
 ## Brain v1.0 — Cross-Genre Cinema Intelligence
 
@@ -94,27 +188,41 @@ Track intelligence quality rather than code volume:
 
 - canonical film count
 - reviewed trait assignments
+- candidate corpus size
 - trait coverage
 - evidence diversity
 - conflict rate
 - explainability coverage
 - recommendation acceptance and completion
+- Recommendation Trust
 - predicted-versus-actual error
 - confidence calibration
+- abstention rate and abstention quality
+- diversity and novelty
 - regression pass rate
 - review backlog
 
+## UI and Studio boundary
+
+The internal review and calibration interfaces remain useful prototypes and future Studio foundations, but they are not required for Brain v0.3 production.
+
+New UI work is paused unless it:
+
+- removes friction from an active intelligence validation task,
+- exposes evidence required to diagnose a recommendation,
+- or remains a small bounded layer over an already-stable engine contract.
+
+The private engine repository will not be made public merely to host internal static tooling. Hosting may be revisited after recommendation quality earns a visible product surface.
+
 ## Anti-drift rule
 
-A Studio or interface task may enter active work only when it:
-
-- removes friction from the current release,
-- exposes intelligence needed for validation, or
-- remains a small bounded layer over an already-stable engine contract.
+A task enters active production only when it strengthens the current release's definition of done or records a necessary future dependency without activating it.
 
 The active sequence is:
 
-1. ship Brain v0.1
-2. build Brain v0.2
-3. validate the first explainable recommendation
-4. expand the horror benchmark based on measured gaps
+1. preserve Brain v0.1 canonical truth
+2. use Brain v0.2 taste and calibration contracts as the scoring foundation
+3. build the first versioned recommendation corpus
+4. rank a small frozen unwatched horror batch with explanations and abstention
+5. collect outcomes and measure Recommendation Trust
+6. expand corpus and confidence only when evidence supports it
