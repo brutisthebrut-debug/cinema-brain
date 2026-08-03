@@ -72,7 +72,7 @@ Definition of done:
 
 ## Brain v0.3 — Recommendation Intelligence
 
-Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating active
+Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating and audit active
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
@@ -162,11 +162,26 @@ Shipped:
 - regression coverage for eligible release, watched overlap, tampering, and overwrite prevention
 - permanent contract and agent handoff in `docs/RECOMMENDATION_RELEASE_GATES_V1.md`
 
+#### Recommendation Audit v1
+
+Status: implemented as the active read-only diagnostic contract over frozen releases.
+
+Shipped:
+
+- fail-closed manifest-to-snapshot cross-link verification
+- deterministic audit identity keyed to `release_id` and the frozen snapshot digest
+- complete release-gate and count reconciliation
+- raw-to-balanced rank movement inspection
+- abstention reason and rate inspection
+- released-prediction evidence coverage
+- read-only Brain health metrics and an explicit awaiting-outcome state
+- create-once audit output and regression coverage
+- permanent contract and agent handoff in `docs/RECOMMENDATION_AUDIT_V1.md`
+
 Next validation work:
 
-1. Recommendation Audit v1 consumes manifests and snapshots without rewriting them.
-2. Brain Health Dashboard v1 may expose the stable audit contract as a thin read-only view.
-3. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
+1. Brain Health Dashboard v1 may expose the stable audit contract as a thin read-only view.
+2. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
 
 ### Milestone 4 — Continuous learning
 
@@ -251,7 +266,7 @@ The active sequence is:
 3. preserve the merged versioned recommendation corpus
 4. preserve the merged raw ranking and diversity-aware balanced slate
 5. enforce Recommendation Release Gates v1 and freeze the prediction manifest and snapshot
-6. build Recommendation Audit v1 against the frozen release contract
+6. preserve Recommendation Audit v1 as the read-only diagnostic contract
 7. expose Brain Health Dashboard v1 only as a thin read-only audit surface
 8. collect post-watch outcomes by `release_id` and measure Recommendation Trust
 9. expand corpus and confidence only when outcome evidence supports it
