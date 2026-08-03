@@ -31,10 +31,11 @@ def build_personal_taste_graph(
     reviewed_profiles: dict[str, Any],
     signals: Iterable[dict[str, Any]],
 ) -> dict[str, Any]:
+    signal_rows = list(signals)
     films = {film["film_key"]: film for film in reviewed_profiles["films"]}
     contributions: dict[str, list[dict[str, Any]]] = defaultdict(list)
 
-    for signal in signals:
+    for signal in signal_rows:
         film = films.get(signal["film_key"])
         if not film:
             continue
@@ -78,7 +79,7 @@ def build_personal_taste_graph(
         "model_version": MODEL_VERSION,
         "profile_version": reviewed_profiles["version"],
         "registry_version": reviewed_profiles["registry_version"],
-        "signal_count": sum(1 for signal in signals if signal.get("film_key") in films),
+        "signal_count": sum(1 for signal in signal_rows if signal.get("film_key") in films),
         "learned_trait_count": len(traits),
         "traits": traits,
     }
