@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "instructions": "Record overall film enjoyment separately from admiration of individual craft traits. overall_rating uses 0.5-5.0 stars. overall_sentiment uses dislike, neutral, like, or love. trait_reactions use dislike, neutral, like, or admire_not_enjoy.",
+  "films": [
+    {"film_key":"title:the-blair-witch-project:1999","title":"The Blair Witch Project","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:the-thing:1982","title":"The Thing","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{"practical_effects":null},"notes":""},
+    {"film_key":"title:suspiria:1977","title":"Suspiria","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:the-wicker-man:1973","title":"The Wicker Man","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:the-fly:1986","title":"The Fly","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{"practical_effects":null},"notes":""},
+    {"film_key":"title:the-ring:2002","title":"The Ring","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:let-the-right-one-in:2008","title":"Let the Right One In","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:the-host:2006","title":"The Host","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""},
+    {"film_key":"title:undertone:2025","title":"Undertone","overall_rating":null,"overall_sentiment":null,"would_rewatch":null,"trait_reactions":{},"notes":""}
+  ]
+}
