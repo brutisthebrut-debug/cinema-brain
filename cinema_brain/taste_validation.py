@@ -6,7 +6,18 @@ from typing import Any
 from .canonical_taste_scoring import score_canonical_films
 from .personal_taste_graph import _signal_strength, build_personal_taste_graph
 
-VALIDATION_VERSION = "leave-one-film-out-1.0.0"
+VALIDATION_VERSION = "leave-one-film-out-1.1.0"
+NEUTRAL_SIGNAL_BAND = 0.15
+MIN_PREDICTION_COVERAGE = 0.4
+MIN_ACTIVE_TRAITS = 2
+
+
+def _label(value: float) -> str:
+    if value > NEUTRAL_SIGNAL_BAND:
+        return "positive"
+    if value < -NEUTRAL_SIGNAL_BAND:
+        return "negative"
+    return "neutral"
 
 
 def apply_explicit_preferences(
@@ -73,39 +84,56 @@ def leave_one_film_out_validation(
         ranking = score_canonical_films(reviewed_profiles, graph)
         predicted = next(film for film in ranking["films"] if film["film_key"] == held_key)
         actual_strength = _signal_strength(held_signal)
+        actual_label = _label(actual_strength)
+        predicted_label = _label(predicted["taste_score"])
+        active_traits = int(predicted.get("active_trait_count", 0))
+        coverage = float(predicted.get("trait_coverage", 0.0))
+        eligible = active_traits >= MIN_ACTIVE_TRAITS and coverage >= MIN_PREDICTION_COVERAGE
+        components = predicted.get("all_components", [])
+        dominant_share = 0.0
+        if components:
+            total = sum(abs(float(item["contribution"])) for item in components) or 1.0
+            dominant_share = max(abs(float(item["contribution"])) for item in components) / total
 
         folds.append({
             "film_key": held_key,
             "title": held_out["title"],
             "actual_signal_strength": round(actual_strength, 6),
+            "actual_label": actual_label,
             "predicted_taste_score": predicted["taste_score"],
+            "predicted_label": predicted_label,
             "predicted_rank": predicted["rank"],
             "confidence": predicted["confidence"],
+            "active_trait_count": active_traits,
             "trait_coverage": predicted["trait_coverage"],
-            "direction_correct": (
-                predicted["taste_score"] >= 0 and actual_strength >= 0
-            ) or (
-                predicted["taste_score"] < 0 and actual_strength < 0
-            ),
+            "eligible_prediction": eligible,
+            "label_correct": eligible and predicted_label == actual_label,
+            "dominant_trait_share": round(dominant_share, 6),
+            "single_trait_dominated": dominant_share > 0.7,
             "top_matches": predicted["top_matches"],
             "top_mismatches": predicted["top_mismatches"],
         })
 
-    direction_accuracy = (
-        sum(1 for fold in folds if fold["direction_correct"]) / len(folds)
-        if folds else 0.0
+    eligible_folds = [fold for fold in folds if fold["eligible_prediction"]]
+    three_way_accuracy = (
+        sum(1 for fold in eligible_folds if fold["label_correct"]) / len(eligible_folds)
+        if eligible_folds else 0.0
     )
     mean_absolute_error = (
-        sum(abs(fold["predicted_taste_score"] - fold["actual_signal_strength"]) for fold in folds)
-        / len(folds)
-        if folds else 0.0
+        sum(abs(fold["predicted_taste_score"] - fold["actual_signal_strength"]) for fold in eligible_folds)
+        / len(eligible_folds)
+        if eligible_folds else 0.0
     )
 
     return {
-        "version": "0.2.2",
+        "version": "0.2.3",
         "validation_model_version": VALIDATION_VERSION,
+        "neutral_signal_band": NEUTRAL_SIGNAL_BAND,
         "fold_count": len(folds),
-        "direction_accuracy": round(direction_accuracy, 6),
+        "eligible_fold_count": len(eligible_folds),
+        "abstained_fold_count": len(folds) - len(eligible_folds),
+        "three_way_accuracy": round(three_way_accuracy, 6),
         "mean_absolute_error": round(mean_absolute_error, 6),
+        "single_trait_dominated_fold_count": sum(1 for fold in folds if fold["single_trait_dominated"]),
         "folds": folds,
     }
