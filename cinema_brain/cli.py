@@ -9,6 +9,7 @@ from .golden_review_workflow import build_review_template, compile_review_decisi
 from .ingest import ingest
 from .metadata_enrichment import enrich_films, write_enrichment_report
 from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
+from .profile_review_workflow import build_review_worksheet, compile_review, promote_reviewed_profiles
 from .recommend import recommend
 from .report import build_report
 from .rss_sync import sync_rss, write_report
@@ -35,6 +36,9 @@ def parser() -> argparse.ArgumentParser:
     compile_cmd = sub.add_parser("golden-review-compile"); compile_cmd.add_argument("--benchmark", default="config/golden_horror_v1.json"); compile_cmd.add_argument("--template", default="reports/golden_review.csv"); compile_cmd.add_argument("--reviewer", required=True); compile_cmd.add_argument("--output", default="reports/golden_review_decisions.json")
     promote = sub.add_parser("golden-promote"); promote.add_argument("--benchmark", default="config/golden_horror_v1.json"); promote.add_argument("--decisions", default="reports/golden_review_decisions.json"); promote.add_argument("--next-version", required=True); promote.add_argument("--output", required=True)
     candidate = sub.add_parser("golden-candidate-validate"); candidate.add_argument("--source", required=True); candidate.add_argument("--candidate", required=True); candidate.add_argument("--decisions", required=True); candidate.add_argument("--output", default="reports/golden_candidate_validation.json")
+    profile_template = sub.add_parser("profile-review-template"); profile_template.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_template.add_argument("--output", default="reports/canonical_horror_profile_review.csv")
+    profile_compile = sub.add_parser("profile-review-compile"); profile_compile.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_compile.add_argument("--worksheet", default="reports/canonical_horror_profile_review.csv"); profile_compile.add_argument("--reviewer", required=True); profile_compile.add_argument("--output", default="reports/canonical_horror_profile_decisions.json")
+    profile_promote = sub.add_parser("profile-review-promote"); profile_promote.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_promote.add_argument("--decisions", default="reports/canonical_horror_profile_decisions.json"); profile_promote.add_argument("--registry", default="config/trait_registry_v1.json"); profile_promote.add_argument("--next-version", required=True); profile_promote.add_argument("--output", required=True)
     return p
 
 
@@ -62,4 +66,7 @@ def main() -> int:
     if args.command == "golden-promote": print(json.dumps(write_promoted_dataset(Path(args.benchmark), Path(args.decisions), Path(args.output), next_version=args.next_version), indent=2)); return 0
     if args.command == "golden-candidate-validate":
         report = validate_candidate(Path(args.source), Path(args.candidate), Path(args.decisions)); write_validation_report(report, Path(args.output)); print(json.dumps(report, indent=2)); return 0 if report["valid"] else 1
+    if args.command == "profile-review-template": print(json.dumps(build_review_worksheet(Path(args.profiles), Path(args.output)), indent=2)); return 0
+    if args.command == "profile-review-compile": print(json.dumps(compile_review(Path(args.profiles), Path(args.worksheet), Path(args.output), reviewer=args.reviewer), indent=2)); return 0
+    if args.command == "profile-review-promote": print(json.dumps(promote_reviewed_profiles(Path(args.profiles), Path(args.decisions), Path(args.registry), Path(args.output), next_version=args.next_version), indent=2)); return 0
     return 2
