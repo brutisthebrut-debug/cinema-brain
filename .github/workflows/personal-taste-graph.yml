@@ -108,6 +108,8 @@ jobs:
               )
           if not validation.get('folds'):
               raise SystemExit('held-out validation produced no folds')
+          if validation.get('eligible_fold_count', 0) < 1:
+              raise SystemExit('held-out validation produced no eligible predictions')
           if any(fold.get('confidence', 0) < 0 or fold.get('trait_coverage', 0) < 0 for fold in validation['folds']):
               raise SystemExit('held-out validation contains invalid confidence or coverage')
 
@@ -119,8 +121,11 @@ jobs:
               'top_score': ranking['films'][0]['taste_score'],
               'top_confidence': ranking['films'][0]['confidence'],
               'held_out_folds': validation['fold_count'],
-              'direction_accuracy': validation['direction_accuracy'],
+              'eligible_folds': validation['eligible_fold_count'],
+              'abstained_folds': validation['abstained_fold_count'],
+              'three_way_accuracy': validation['three_way_accuracy'],
               'mean_absolute_error': validation['mean_absolute_error'],
+              'single_trait_dominated_folds': validation['single_trait_dominated_fold_count'],
           }, indent=2))
           PY
 
