@@ -8,15 +8,15 @@ on:
         required: false
         default: data
       output_name:
-        description: Artifact name
+        description: Artifact bundle name
         required: false
-        default: daniel-personal-taste-graph-v1
+        default: daniel-taste-intelligence-v1
 
 permissions:
   contents: read
 
 jobs:
-  build-taste-graph:
+  build-taste-intelligence:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -49,34 +49,54 @@ jobs:
           --profiles config/canonical_horror_profiles_v1_reviewed.json
           --output artifacts/personal_taste_graph_v1.json
 
-      - name: Verify graph shape
+      - name: Score canonical films
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from cinema_brain.canonical_taste_scoring import score_canonical_films_file
+
+          score_canonical_films_file(
+              Path('config/canonical_horror_profiles_v1_reviewed.json'),
+              Path('artifacts/personal_taste_graph_v1.json'),
+              Path('artifacts/canonical_film_taste_ranking_v1.json'),
+          )
+          PY
+
+      - name: Verify intelligence artifacts
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          path = Path('artifacts/personal_taste_graph_v1.json')
-          graph = json.loads(path.read_text(encoding='utf-8'))
-          required = {'version', 'model_version', 'profile_version', 'registry_version', 'signal_count', 'learned_trait_count', 'traits'}
-          missing = required - set(graph)
-          if missing:
-              raise SystemExit(f'missing graph keys: {sorted(missing)}')
-          if graph['signal_count'] < 1:
+          graph = json.loads(Path('artifacts/personal_taste_graph_v1.json').read_text(encoding='utf-8'))
+          ranking = json.loads(Path('artifacts/canonical_film_taste_ranking_v1.json').read_text(encoding='utf-8'))
+
+          if graph.get('signal_count', 0) < 1:
               raise SystemExit('no canonical benchmark films matched persisted history')
-          if graph['learned_trait_count'] < 1:
+          if graph.get('learned_trait_count', 0) < 1:
               raise SystemExit('taste graph learned no traits')
+          if ranking.get('film_count') != 9:
+              raise SystemExit(f"expected 9 ranked films, got {ranking.get('film_count')}")
+          ranks = [film.get('rank') for film in ranking.get('films', [])]
+          if ranks != list(range(1, 10)):
+              raise SystemExit(f'invalid ranking sequence: {ranks}')
+          if not any(film.get('active_trait_count', 0) > 0 for film in ranking['films']):
+              raise SystemExit('ranking contains no active trait evidence')
+
           print(json.dumps({
               'signal_count': graph['signal_count'],
               'learned_trait_count': graph['learned_trait_count'],
-              'conflicted_traits': sum(1 for value in graph['traits'].values() if value['conflict']),
-              'provisional_traits': sum(1 for value in graph['traits'].values() if value['status'] == 'provisional'),
+              'ranked_films': ranking['film_count'],
+              'top_film': ranking['films'][0]['title'],
+              'top_score': ranking['films'][0]['taste_score'],
+              'top_confidence': ranking['films'][0]['confidence'],
           }, indent=2))
           PY
 
-      - name: Upload private taste graph artifact
+      - name: Upload private taste intelligence bundle
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.output_name }}
-          path: artifacts/personal_taste_graph_v1.json
+          path: artifacts/*.json
           if-no-files-found: error
           retention-days: 30
