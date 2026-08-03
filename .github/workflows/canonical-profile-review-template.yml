@@ -1,0 +1,62 @@
+name: cinema-brain-canonical-profile-review-template
+
+on:
+  workflow_dispatch:
+    inputs:
+      profiles_path:
+        description: Candidate profile file
+        required: true
+        default: config/canonical_horror_profiles_v1.json
+      output_name:
+        description: Artifact base name
+        required: true
+        default: canonical-horror-profile-review-v1
+
+permissions:
+  contents: read
+
+jobs:
+  generate-review-template:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout trusted repository code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install package
+        run: python -m pip install -e .
+
+      - name: Generate canonical profile review worksheet
+        run: |
+          mkdir -p reports
+          python -m cinema_brain.cli profile-review-template \
+            --profiles "${{ inputs.profiles_path }}" \
+            --output "reports/${{ inputs.output_name }}.csv"
+
+      - name: Verify worksheet shape
+        run: |
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+          path = Path("reports/${{ inputs.output_name }}.csv")
+          with path.open(newline="", encoding="utf-8") as handle:
+              rows = list(csv.DictReader(handle))
+          assert len(rows) == 45, f"expected 45 assignments, got {len(rows)}"
+          assert len({row['film_key'] for row in rows}) == 9, "expected 9 films"
+          assert all(not row['decision'] for row in rows), "worksheet must begin unreviewed"
+          print({"films": 9, "assignments": 45, "path": str(path)})
+          PY
+
+      - name: Upload review worksheet
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.output_name }}
+          path: reports/${{ inputs.output_name }}.csv
+          if-no-files-found: error
+          retention-days: 30
