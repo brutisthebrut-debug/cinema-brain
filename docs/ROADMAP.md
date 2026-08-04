@@ -91,7 +91,8 @@ Conversation, CLI, and any future dashboard are clients of this pipeline. They d
 - Candidate validation and reviewed-regression gates
 - Successful real-data run with nine exact horror-film matches
 
-The final Golden Horror v2 release PR remains the immediate closure task before Metadata Intelligence Phase 1 is formally released.
+Metadata Intelligence Phase 1 was formally released into Brain v0.1. Its reviewed
+canonical truth remains protected while Brain v0.3 validates real recommendations.
 
 ---
 
