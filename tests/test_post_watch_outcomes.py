@@ -149,6 +149,7 @@ def test_capture_preserves_inputs_and_calculates_trust_and_error() -> None:
 
     assert (manifest, snapshot, audit) == originals
     assert outcome["release_id"] == manifest["release_id"]
+    assert outcome["prediction"]["year"] == 2026
     assert outcome["prediction"]["projected_rating"] == 4.55
     assert outcome["evaluation"]["prediction_error"] == -0.05
     assert outcome["evaluation"]["recommendation_trust"] == 1.0
