@@ -2,6 +2,58 @@
 
 These notes record capabilities shipped, architectural changes, lessons, accepted debt, and the next production milestone. They are not marketing notes.
 
+## Brain v0.3 — Recommendation Intelligence validation
+
+**Date:** 2026-08-03
+
+### Shipped
+
+- Versioned horror recommendation corpus with watched and known-film exclusion
+- Explainable Daniel-specific candidate ranking and abstention
+- Diversity-aware balanced top-five production slate through PR #60
+- Fail-closed Recommendation Release Gates v1 and immutable prediction snapshots through PR #61
+- Read-only Recommendation Audit v1 through PR #62
+- Local Brain Health Dashboard v1 through PR #63
+- Append-only Post-watch Outcome Capture v1 through PR #64
+- Recommendation Trust, versioned projected-rating error, and deterministic unpromoted regression fixtures
+
+### Architectural change
+
+Recommendation output is now a content-addressed release rather than an ephemeral
+list. The manifest, prediction snapshot, audit, dashboard, and outcome submission
+share a verified `release_id` boundary. Post-watch evidence appends to that boundary
+without mutating the prediction or silently changing taste truth.
+
+### Validation
+
+- PR #61 CI passed the release-gate implementation.
+- PR #62 CI passed the audit implementation.
+- PR #63 CI passed the dashboard implementation and all 143 repository tests.
+- PR #64 CI passed outcome capture and all 152 repository tests.
+- Release identity, tamper detection, audit cross-links, append-only outcomes, and
+  regression-fixture thresholds have deterministic regression coverage.
+
+### Learned
+
+- A useful recommendation system needs a frozen prediction before it needs more candidates.
+- Trust, completion, moment fit, and rating calibration must remain separate metrics.
+- A failed recommendation is review evidence; it must not automatically retrain the model.
+- Cross-agent continuity requires the root README to carry the live resume point,
+  not only historical setup instructions.
+
+### Intentionally deferred
+
+- Automatic taste-weight or canonical-profile updates from one outcome
+- Corpus expansion to 25 or 50 before the first real outcome is inspected
+- Dashboard-owned ranking or learning logic
+- New provider, public, social, marketplace, or multi-user work
+
+### Next production operation
+
+Capture the first real release-bound outcome, review Recommendation Trust and
+prediction error, and inspect any generated regression fixture before promoting
+learning evidence or expanding the horror corpus.
+
 ## v0.3 — Living Foundation
 
 **Date:** 2026-08-02
