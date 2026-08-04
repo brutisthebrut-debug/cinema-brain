@@ -39,3 +39,17 @@ After roughly 10–20 meaningful milestones, pause to inspect coherence, duplica
 
 ### Every brain is independently excellent and collectively smarter
 Cross-brain intelligence must use explicit contracts, permissions, and inspectable evidence rather than hidden implementation coupling.
+
+## 2026-08-03
+
+### Human evaluation and release-bound outcomes are one experience
+
+The original top-five evaluation UI and the later Post-watch Outcome Capture v1
+contract are complementary, not competing flows. The UI must preserve pre-watch
+interest and explanation evidence while collecting the release-bound post-watch
+outcome on the same film card.
+
+When a release template is unavailable, manual intake remains valuable human
+evidence but cannot count as Recommendation Trust unless a matching release frozen
+before the watch is verified. Cinema Brain never invents or backdates release
+identity to rescue an outcome.
