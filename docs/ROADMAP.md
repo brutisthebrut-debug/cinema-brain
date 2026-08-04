@@ -440,8 +440,9 @@ The release-level execution state is maintained in `docs/BRAIN_RELEASES.md`. The
 4. Preserve Recommendation Release Gates v1 and its frozen manifest and prediction snapshot.
 5. Preserve Recommendation Audit v1 as the verified read-only contract over those immutable records.
 6. Preserve Brain Health Dashboard v1 as the thin read-only audit surface.
-7. Record Daniel's post-watch outcome by `release_id`, calculate Recommendation Trust, and convert failures into fixtures.
-8. Expand the horror benchmark to 25 and then 50 only when measured gaps justify it.
+7. Preserve Post-watch Outcome Capture v1 as the append-only Learning contract keyed by `release_id`.
+8. Capture and review the first real release outcome and any generated regression fixture.
+9. Expand the horror benchmark to 25 and then 50 only when measured gaps justify it.
 
 No additional provider, governance, social, marketplace, or dashboard-owned intelligence work should interrupt this sequence unless a real blocker requires it.
 
