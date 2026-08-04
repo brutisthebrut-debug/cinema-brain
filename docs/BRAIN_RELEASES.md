@@ -192,9 +192,25 @@ Shipped:
 - production artifact packaging and regression coverage
 - permanent contract and agent handoff in `docs/BRAIN_HEALTH_DASHBOARD_V1.md`
 
+#### Post-watch Outcome Capture v1
+
+Status: implemented as the append-only Learning-layer contract over frozen releases.
+
+Shipped:
+
+- a release-bound submission template containing only the eligible balanced slate
+- fail-closed manifest, snapshot, audit, `release_id`, `audit_id`, and `film_key` verification
+- explicit rating, one-sentence reaction, completion, glad-watched, and moment-fit evidence
+- deterministic prediction error using a versioned taste-score-to-rating projection
+- Recommendation Trust measured directly from whether Daniel is genuinely glad he watched
+- append-only outcome directories and deterministic regression fixtures for misses
+- aggregate Recommendation Trust, completion, moment-fit, and calibration summaries
+- production artifact packaging, CLI capture, regression coverage, and a permanent handoff
+
 Next validation work:
 
-1. Post-watch outcome capture references `release_id` and measures Recommendation Trust against the frozen prediction.
+1. Capture the first real release outcome and review its regression decision before promoting any learning evidence.
+2. Expand the horror benchmark only when measured outcome gaps justify the next films.
 
 ### Milestone 4 — Continuous learning
 
@@ -282,4 +298,5 @@ The active sequence is:
 6. preserve Recommendation Audit v1 as the read-only diagnostic contract
 7. preserve Brain Health Dashboard v1 as the thin read-only audit surface
 8. collect post-watch outcomes by `release_id` and measure Recommendation Trust
-9. expand corpus and confidence only when outcome evidence supports it
+9. review the first outcome and any regression fixture before promoting learning evidence
+10. expand corpus and confidence only when outcome evidence supports it
