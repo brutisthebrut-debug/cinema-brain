@@ -2,6 +2,35 @@
 
 These notes record capabilities shipped, architectural changes, lessons, accepted debt, and the next production milestone. They are not marketing notes.
 
+## Manual Outcome Reconciliation v1
+
+**Date:** 2026-08-04
+
+### Shipped
+
+- Added fail-closed reconciliation for manual handoffs from predictions frozen
+  before Recommendation Release Gates v1.
+- Kept observed legacy trust separate from formal release-bound Recommendation Trust.
+- Added deterministic append-only output, provisional calibration, unpromoted
+  review candidates, CLI support, and regression coverage.
+- Reviewed the first real outcome, Noroi: The Curse (2005), using safe aggregate evidence.
+
+### First evidence
+
+- The recommendation succeeded: Daniel completed the film, was glad he watched,
+  said it fit the moment, rated it 3.5/5, liked it, and would recommend it.
+- The explanation landed, especially pacing, buildup, uncertainty, supernatural
+  material, and eerie dread.
+- The 0.888 legacy score projected to 4.748/5, a -1.248 signed error at 0.678
+  confidence. This creates an unpromoted calibration candidate, not a trust failure.
+- Difficulty following the story is retained as a possible narrative-legibility
+  gap but is not promoted from one outcome.
+
+### Next production operation
+
+Collect a second frozen outcome before changing calibration, taste weights,
+trait vocabulary, or benchmark size.
+
 ## Unified Evaluation Experience v1
 
 **Date:** 2026-08-03

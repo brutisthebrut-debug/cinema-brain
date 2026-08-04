@@ -442,14 +442,33 @@ The release-level execution state is maintained in `docs/BRAIN_RELEASES.md`. The
 5. Preserve Recommendation Audit v1 as the verified read-only contract over those immutable records.
 6. Preserve Brain Health Dashboard v1 as the thin read-only audit surface.
 7. Preserve Post-watch Outcome Capture v1 as the append-only Learning contract keyed by `release_id`.
-8. Capture and review the first real release outcome and any generated regression fixture.
-9. Expand the horror benchmark to 25 and then 50 only when measured gaps justify it.
+8. Preserve Unified Evaluation Experience v1 and Manual Outcome Reconciliation v1.
+9. Preserve the reviewed Noroi outcome and its unpromoted calibration candidate.
+10. Capture a second frozen outcome before changing calibration or taste dimensions.
+11. Expand the horror benchmark to 25 and then 50 only when repeated measured gaps justify it.
 
 No additional provider, governance, social, marketplace, or dashboard-owned intelligence work should interrupt this sequence unless a real blocker requires it.
 
 ---
 
 # First explicit live evidence
+
+## Noroi: The Curse (2005)
+
+- Watched: August 3, 2026 (completed at August 4, 01:09 UTC)
+- Rating: 3.5 stars
+- Outcome: glad watched, fit the moment, liked, would recommend to similar taste
+- Recommendation explanation: nailed it
+- What landed: pacing, buildup, uncertainty, supernatural material, and eerie dread
+- Friction: some difficulty following the story
+- Binding: verified against the pre-gate frozen top-five prediction; not eligible
+  for formal release-bound Recommendation Trust
+- Calibration: the 0.888 legacy score projected to 4.748/5, creating an
+  unpromoted rating-projection and overconfidence review candidate
+
+This is the first verified recommendation outcome. It supports the slate decision
+while challenging score calibration. Narrative legibility remains a candidate
+dimension until another outcome shows the same pattern.
 
 ## Undertone (2025)
 

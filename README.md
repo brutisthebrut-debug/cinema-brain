@@ -14,9 +14,9 @@ GitHub Actions artifacts unless Daniel intentionally promotes reviewed evidence.
 | Handoff field | Current value |
 | --- | --- |
 | Release | Brain v0.3 — Recommendation Intelligence |
-| State on `main` | Implemented through Post-watch Outcome Capture v1 and the Unified Evaluation Experience v1 |
-| Current operation | Capture the first real outcome in the unified page, then verify and review it |
-| Next implementation decision | Expand the horror benchmark only after the outcome and any regression fixture reveal a measured coverage gap |
+| State on `main` | Implemented through Post-watch Outcome Capture v1, Unified Evaluation Experience v1, and Manual Outcome Reconciliation v1 |
+| Current operation | Preserve the verified Noroi outcome and collect a second frozen recommendation outcome |
+| Next implementation decision | Revisit calibration and narrative-legibility coverage only if the next outcome confirms the gap |
 
 Do not automatically change taste weights, promote a regression fixture, expand
 the corpus, or begin a new UI/provider feature before that review.
@@ -28,6 +28,7 @@ Authoritative execution state:
 - [`docs/ROADMAP_STATUS.md`](docs/ROADMAP_STATUS.md) — implemented, active, and parked work
 - [`docs/POST_WATCH_OUTCOME_CAPTURE_V1.md`](docs/POST_WATCH_OUTCOME_CAPTURE_V1.md) — current operating contract
 - [`docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md`](docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md) — human-facing evaluation and manual fallback
+- [`docs/MANUAL_OUTCOME_RECONCILIATION_V1.md`](docs/MANUAL_OUTCOME_RECONCILIATION_V1.md) — verified legacy binding and first-outcome review
 
 ## What is production-ready
 
@@ -65,6 +66,8 @@ Authoritative execution state:
 - Calculates Recommendation Trust and versioned prediction error.
 - Creates an unpromoted deterministic regression fixture when a recommendation
   meaningfully misses.
+- Reconciles manual handoffs against pre-gate frozen predictions without
+  inventing a `release_id` or contaminating formal Recommendation Trust.
 
 The North Star is **Recommendation Trust**: if Cinema Brain recommends five films,
 how many is Daniel genuinely glad he watched?
@@ -163,6 +166,21 @@ chat**. The manual record remains useful evaluation evidence, but it cannot coun
 as formal Recommendation Trust unless an agent verifies that a matching frozen
 release existed before the watch. Never create or backdate a release after seeing
 the outcome.
+
+For a prediction frozen before Release Gates v1, use Manual Outcome
+Reconciliation v1. It verifies identity and pre-watch timing, records observed
+trust separately, and keeps formal release-bound Recommendation Trust null:
+
+```bash
+python -m cinema_brain.cli reconcile-manual-outcome \
+  --evaluation daniel_human_evaluation_top5_v1.json \
+  --submission cinema_brain_manual_handoff_v1.json \
+  --output-dir outcomes/manual
+```
+
+The first verified manual outcome is Noroi: The Curse (2005): completed,
+glad-watched, moment fit, 3.5/5, and an unpromoted calibration review candidate.
+See the reconciliation contract for the safe aggregate and exact handoff.
 
 In the release-bound submission, preserve `version`, `submission_type`,
 `release_id`, `audit_id`, and `released_predictions`. Fill only:

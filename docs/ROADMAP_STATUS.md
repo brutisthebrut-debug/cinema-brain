@@ -182,6 +182,16 @@ Expand deliberately rather than opening multiple genre fronts:
 
 Prioritize diversity across found footage, psychological, folk, body, supernatural, creature, cosmic, slasher, international, archival, recent, loved, disliked, and contradictory examples.
 
+The first real outcome is now reviewed. Noroi: The Curse succeeded on
+completion, glad-watched, moment fit, explanation fit, and recommendation intent.
+Its 3.5/5 actual rating is materially below the legacy score projection, so the
+result creates a calibration review candidate rather than a recommendation-trust
+failure. Daniel also reported some difficulty following the story; narrative
+legibility remains a candidate dimension, not promoted taste truth.
+
+Do not begin the 25-film expansion until a second frozen outcome shows whether
+either gap repeats.
+
 ## Later intelligence phases
 
 - Taste drift and era snapshots
@@ -232,8 +242,9 @@ These ideas remain valid future options, but they do not belong in the active se
 5. Preserve Post-watch Outcome Capture v1 through PR #64.
 6. Preserve Unified Evaluation Experience v1 as the single human-facing loop over
    pre-watch evaluation, release-bound outcome capture, and manual fallback.
-7. Capture and review the first real outcome and any regression fixture.
-8. Expand the reviewed horror benchmark to 25 and then 50 only when measured gaps
+7. Preserve Manual Outcome Reconciliation v1 and the reviewed Noroi outcome.
+8. Capture a second frozen outcome and compare calibration and narrative-legibility evidence.
+9. Expand the reviewed horror benchmark to 25 and then 50 only when repeated gaps
    from real outcomes justify the added films.
 
 No additional provider, workflow-governance, interface, or social work should
