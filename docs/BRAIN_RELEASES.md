@@ -76,7 +76,7 @@ Status: active production validation; corpus and ranking are complete through PR
 #60, and release gates, audit, health inspection, and post-watch outcome capture are
 complete through PR #64. The original evaluation UI and the release-bound outcome
 contract are unified in Unified Evaluation Experience v1. The first real outcome
-is awaiting review.
+has been reviewed through Manual Outcome Reconciliation v1.
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
@@ -226,10 +226,36 @@ Shipped:
 - migration of existing Human Evaluation Pack v1 browser answers by `film_key`;
 - no network requests, ranking logic, trust calculation, or taste mutation.
 
+#### Manual Outcome Reconciliation v1
+
+Status: implemented as the fail-closed transition contract for manual outcomes
+from predictions frozen before Recommendation Release Gates v1.
+
+Shipped:
+
+- exact source-artifact, film-identity, and pre-watch timing verification;
+- explicit separation of observed legacy trust from formal release-bound trust;
+- no invented or backdated `release_id`;
+- provisional rating calibration with a separately named projection method;
+- deterministic, unpromoted review candidates for meaningful misses;
+- append-only private outcome storage and a CLI workflow;
+- first-outcome review for Noroi: The Curse (2005).
+
+First evidence:
+
+- completed, glad watched, fit the moment, 3.5/5, `like`, and would recommend;
+- observed legacy trust 1.0 from one verified manual outcome;
+- formal release-bound Recommendation Trust remains unmeasured;
+- the 0.888 legacy score projected to 4.748/5, creating an unpromoted
+  calibration candidate for a 1.248-star absolute error and confidence 0.678.
+
 Next validation work:
 
-1. Capture the first real release outcome and review its regression decision before promoting any learning evidence.
-2. Expand the horror benchmark only when measured outcome gaps justify the next films.
+1. Capture a second outcome from the already frozen top five or a new
+   release-bound slate and compare its calibration evidence with Noroi.
+2. Decide whether narrative legibility is a durable missing dimension only after
+   repeated evidence, not from one note.
+3. Expand the horror benchmark only when measured outcome gaps justify the next films.
 
 ### Milestone 4 — Continuous learning
 
@@ -317,6 +343,8 @@ The active sequence is:
 6. preserve Recommendation Audit v1 as the read-only diagnostic contract
 7. preserve Brain Health Dashboard v1 as the thin read-only audit surface
 8. collect post-watch outcomes through the unified evaluation experience, binding
-   them by `release_id` when verified, and measure Recommendation Trust
-9. review the first outcome and any regression fixture before promoting learning evidence
-10. expand corpus and confidence only when outcome evidence supports it
+   them by `release_id` when verified and reconciling pre-gate manual evidence
+   without mixing the two trust populations
+9. preserve the reviewed Noroi outcome and its unpromoted calibration candidate
+10. collect a second frozen outcome before changing calibration or taste dimensions
+11. expand corpus and confidence only when repeated outcome evidence supports it
