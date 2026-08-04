@@ -53,3 +53,11 @@ When a release template is unavailable, manual intake remains valuable human
 evidence but cannot count as Recommendation Trust unless a matching release frozen
 before the watch is verified. Cinema Brain never invents or backdates release
 identity to rescue an outcome.
+
+### Verified completed outcomes update watched memory before the next release
+
+Outcome evidence does not automatically change taste weights, but a verified
+completed watch must become canonical memory before Cinema Brain ranks another
+slate. Promotion copies only film identity, local watched date, rating, and
+outcome provenance into the manual-watch ledger. Private reactions and learning
+candidates remain separate.
