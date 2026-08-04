@@ -265,8 +265,10 @@ First evidence:
 
 Next validation work:
 
-1. Generate a new release-bound slate from the canonical memory that now
-   excludes Noroi, then capture its outcome and compare calibration evidence.
+1. Use frozen release `recommendation-6852bacab2c7499e0a8c`, generated from
+   merge commit `72791d4` after Noroi entered canonical memory, and capture its
+   release-bound outcome. The slate is The Dark and the Wicked, Possum, The Empty
+   Man, A Dark Song, and Saint Maud.
 2. Decide whether narrative legibility is a durable missing dimension only after
    repeated evidence, not from one note.
 3. Expand the horror benchmark only when measured outcome gaps justify the next films.

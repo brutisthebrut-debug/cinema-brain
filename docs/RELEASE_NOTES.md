@@ -25,8 +25,11 @@ These notes record capabilities shipped, architectural changes, lessons, accepte
 
 ### Next production operation
 
-Generate the first post-Noroi release-bound slate and capture its outcome before
-making any calibration or narrative-legibility decision.
+Frozen release `recommendation-6852bacab2c7499e0a8c` was generated from merge
+commit `72791d4` after Noroi entered canonical memory. Its slate is The Dark and
+the Wicked, Possum, The Empty Man, A Dark Song, and Saint Maud. Capture one
+release-bound outcome from that package before making any calibration or
+narrative-legibility decision.
 
 ## Manual Outcome Reconciliation v1
 
