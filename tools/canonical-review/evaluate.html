@@ -1,13 +1,131 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cinema Brain Human Evaluation</title><style>
-:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f6f4ee;background:#0d0d0f}*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#171419,#0d0d0f 42%);min-height:100vh}.shell{max-width:760px;margin:auto;padding:18px}.eyebrow{color:#d7a65a;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase}.top{display:flex;justify-content:space-between;gap:16px;align-items:center}.progress,.muted{color:#aaa}.bar{height:5px;background:#29262d;border-radius:99px;overflow:hidden;margin:14px 0 22px}.bar span{display:block;height:100%;background:#d7a65a}.panel{background:#17171b;border:1px solid #2d2a31;border-radius:18px;padding:22px;box-shadow:0 18px 60px #0008}.film{font-size:1.8rem;margin:0}.score{font-size:2.4rem;font-weight:800;color:#d7a65a;margin:12px 0 2px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.box,.reason{background:#111115;border-radius:12px;padding:13px}.label{display:block;color:#918e97;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}.reasons{display:grid;gap:8px;margin:16px 0}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}button,.link{border:1px solid #3a3740;background:#222127;color:#fff;border-radius:12px;padding:12px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none}.choices button.active{background:#d7a65a;color:#17120b;border-color:#d7a65a}textarea{width:100%;min-height:90px;background:#0f0f12;color:#fff;border:1px solid #39363e;border-radius:10px;padding:11px;font:inherit}.section{margin:20px 0}.nav{display:flex;gap:10px;margin-top:20px}.nav>*{flex:1}.primary{background:#d7a65a;color:#17120b;border-color:#d7a65a}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.toolbar>*{flex:1;min-width:150px}.status{color:#d7a65a;margin-top:12px}@media(max-width:560px){.grid,.choices{grid-template-columns:1fr}.panel{padding:17px}.toolbar>*{min-width:100%}}
-</style></head><body><main class="shell"><div class="top"><div><div class="eyebrow">Cinema Brain Studio</div><strong>Human Evaluation Pack v1</strong></div><div class="progress" id="progress"></div></div><div class="bar"><span id="bar"></span></div><div class="toolbar"><a class="link" href="index.html">Trait review</a><a class="link" href="calibration.html">Taste calibration</a><button id="export">Export evaluation JSON</button><button id="reset">Clear saved answers</button></div><section class="panel" id="panel"></section></main><script>
-const template={version:'1.0.0',source_artifact:'daniel-unwatched-horror-ranking-v2',evaluation_type:'frozen_top_five',films:[
-{film_key:'title:noroi-the-curse:2005',title:'Noroi: The Curse',year:2005,predicted_score:0.888,predicted_confidence:0.678,drivers:['found footage realism','occult dread','sustained uncertainty','creeping dread'],uncertainty:'The model has limited direct evidence for Japanese documentary-style folk horror.',already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_rating:null,actual_sentiment:null,would_recommend:null,notes:''},
-{film_key:'title:the-dark-and-the-wicked:2020',title:'The Dark and the Wicked',year:2020,predicted_score:0.847,predicted_confidence:0.526,drivers:['creeping dread','isolation','bleak ending','sound-driven tension'],uncertainty:'Confidence is moderate and the prediction leans heavily on dread and isolation.',already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_rating:null,actual_sentiment:null,would_recommend:null,notes:''},
-{film_key:'title:possum:2018',title:'Possum',year:2018,predicted_score:0.785,predicted_confidence:0.413,drivers:['practical effects','psychological destabilization','liminal unease','creeping dread'],uncertainty:'Practical effects is explicit high-confidence evidence, but overall film fit remains less certain.',already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_rating:null,actual_sentiment:null,would_recommend:null,notes:''},
-{film_key:'title:the-empty-man:2020',title:'The Empty Man',year:2020,predicted_score:0.776,predicted_confidence:0.360,drivers:['cosmic dread','slow burn','sustained uncertainty','occult dread'],uncertainty:'The score is strong, but confidence is low because several traits remain sparsely learned.',already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_rating:null,actual_sentiment:null,would_recommend:null,notes:''},
-{film_key:'title:a-dark-song:2016',title:'A Dark Song',year:2016,predicted_score:0.689,predicted_confidence:0.535,drivers:['occult dread','grief','slow burn','isolation'],uncertainty:'The model expects thematic fit, but ritual pacing may determine whether the experience lands.',already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_rating:null,actual_sentiment:null,would_recommend:null,notes:''}]};
-const key='cinema-brain-human-evaluation-v1';let data=JSON.parse(localStorage.getItem(key)||'null')||structuredClone(template),i=0;const $=id=>document.getElementById(id);const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));function save(){localStorage.setItem(key,JSON.stringify(data))}function complete(f){return f.already_seen!==null&&f.interest&&f.prediction_reaction}function choice(field,values){const f=data.films[i];return `<div class="choices">${values.map(v=>`<button data-field="${field}" data-value="${v}" class="${String(f[field])===v?'active':''}">${v.replaceAll('_',' ')}</button>`).join('')}</div>`}function render(){const f=data.films[i],done=data.films.filter(complete).length;$('progress').textContent=`${done} of ${data.films.length} reviewed`;$('bar').style.width=`${done/data.films.length*100}%`;$('panel').innerHTML=`<h1 class="film">${esc(f.title)} <span class="muted">(${f.year})</span></h1><div class="score">${Math.round(f.predicted_score*100)}% match</div><div class="muted">Confidence: ${Math.round(f.predicted_confidence*100)}%</div><div class="reasons"><span class="label">Why Cinema Brain chose it</span>${f.drivers.map(x=>`<div class="reason">${esc(x)}</div>`).join('')}</div><div class="box"><span class="label">Known uncertainty</span>${esc(f.uncertainty)}</div><div class="section"><span class="label">Have you already seen it?</span>${choice('already_seen',['true','false'])}</div><div class="section"><span class="label">How interested are you based on this recommendation?</span>${choice('interest',['no','maybe','yes'])}</div><div class="section"><span class="label">Does the explanation sound like you?</span>${choice('prediction_reaction',['wrong','partly_right','nailed_it'])}</div><div class="section"><span class="label">Did you watch it because of this recommendation?</span>${choice('watched_after_recommendation',['not_yet','yes','no'])}</div><div class="section"><span class="label">Actual reaction, when known</span>${choice('actual_sentiment',['dislike','neutral','like','love'])}</div><div class="section"><span class="label">Would you recommend it to someone with similar taste?</span>${choice('would_recommend',['unknown','yes','no'])}</div><div class="section"><label><span class="label">Rating, 0.5–5.0</span><input id="rating" type="number" min="0.5" max="5" step="0.5" value="${f.actual_rating??''}" style="width:100%;background:#0f0f12;color:#fff;border:1px solid #39363e;border-radius:10px;padding:11px;font:inherit"></label></div><div class="section"><label><span class="label">Notes</span><textarea id="notes" placeholder="What worked, what did not, or what the brain misunderstood">${esc(f.notes)}</textarea></label></div><div class="nav"><button id="prev" ${i===0?'disabled':''}>Previous</button><button class="primary" id="next">${i===data.films.length-1?'Finish':'Save & next'}</button></div><div class="status" id="status"></div>`;document.querySelectorAll('[data-field]').forEach(b=>b.onclick=()=>{let v=b.dataset.value;if(b.dataset.field==='already_seen')v=v==='true';f[b.dataset.field]=v;save();render()});$('prev').onclick=()=>{capture();i--;render()};$('next').onclick=()=>{capture();if(!complete(f)){return $('status').textContent='Answer seen status, interest, and explanation fit before continuing.'}if(i<data.films.length-1){i++;render()}else $('status').textContent='Top five complete. Export the JSON above.'}}
-function capture(){const f=data.films[i],r=$('rating'),n=$('notes');if(r)f.actual_rating=r.value?Number(r.value):null;if(n)f.notes=n.value.trim();save()}$('export').onclick=()=>{capture();const missing=data.films.filter(f=>!complete(f));if(missing.length&&!confirm(`${missing.length} films are incomplete. Export anyway?`))return;const out={...data,exported_at:new Date().toISOString()};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));a.download='daniel_human_evaluation_top5_v1.json';a.click();URL.revokeObjectURL(a.href)};$('reset').onclick=()=>{if(confirm('Clear all locally saved evaluation answers?')){localStorage.removeItem(key);location.reload()}};render();
-</script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cinema Brain Evaluation</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#f6f4ee;background:#0d0d0f;color-scheme:dark}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#261c25 0,#121116 42%,#0d0d0f 100%);min-height:100vh}
+    button,input,select,textarea{font:inherit}.shell{max-width:820px;margin:auto;padding:18px 18px 60px}.eyebrow,.label{color:#d7a65a;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase}
+    .top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin:8px 0 18px}.top h1{font-size:1.35rem;margin:5px 0}.muted{color:#aaa}.mode{border:1px solid #4a4048;border-radius:999px;padding:7px 11px;color:#d7a65a;font-size:.78rem;white-space:nowrap}
+    .notice,.panel{background:#18171c;border:1px solid #302d34;border-radius:18px;box-shadow:0 18px 60px #0006}.notice{padding:15px 17px;margin-bottom:14px;line-height:1.45}.notice strong{color:#fff}.notice.error{border-color:#9b4f50;color:#ffd5d5}.notice.success{border-color:#54765f;color:#d8ffe1}
+    .toolbar{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}button,.link,.file-label{border:1px solid #3a3740;background:#232128;color:#fff;border-radius:12px;padding:12px 10px;font-weight:700;cursor:pointer;text-align:center;text-decoration:none}.file-label input{display:none}.primary{background:#d7a65a;color:#17120b;border-color:#d7a65a}.danger{color:#ffb9b9}
+    .progressline{display:flex;justify-content:space-between;gap:10px;margin:17px 2px 8px;color:#aaa;font-size:.86rem}.bar{height:5px;background:#29262d;border-radius:99px;overflow:hidden;margin-bottom:16px}.bar span{display:block;height:100%;background:#d7a65a;transition:width .2s}
+    .panel{padding:22px}.film{font-size:1.9rem;margin:0}.score{font-size:2rem;font-weight:800;color:#d7a65a;margin:10px 0 2px}.reasons{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}.reason{background:#111115;border:1px solid #29262f;border-radius:999px;padding:7px 10px;font-size:.84rem}.uncertainty{background:#111115;border-radius:12px;padding:13px;margin:14px 0;line-height:1.45}
+    .section{border-top:1px solid #302d34;margin-top:22px;padding-top:20px}.section h2{font-size:1.08rem;margin:0 0 4px}.question{margin:18px 0}.question>.label{display:block;margin-bottom:8px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choices button.active{background:#d7a65a;color:#17120b;border-color:#d7a65a}
+    input[type=number],input[type=datetime-local],select,textarea{width:100%;background:#0f0f12;color:#fff;border:1px solid #403c44;border-radius:10px;padding:11px}textarea{min-height:95px;resize:vertical}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.nav{display:flex;gap:10px;margin-top:24px}.nav>*{flex:1}.status{color:#d7a65a;margin-top:12px;min-height:1.3em}
+    .handoff{margin-top:15px}.handoff textarea{min-height:250px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem}.handoff-actions{display:flex;gap:9px;margin-top:9px}.handoff-actions>*{flex:1}
+    @media(max-width:680px){.toolbar{grid-template-columns:1fr 1fr}.two,.choices{grid-template-columns:1fr}.panel{padding:17px}.top{align-items:stretch;flex-direction:column}.mode{align-self:flex-start}.handoff-actions{flex-direction:column}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="top">
+    <div><div class="eyebrow">Cinema Brain Studio</div><h1>One recommendation loop</h1><div class="muted">Before the movie, after the movie, and the evidence underneath.</div></div>
+    <div class="mode" id="mode">Manual evaluation</div>
+  </header>
+
+  <div class="notice" id="notice"><strong>You can use this page immediately.</strong> For a formally frozen outcome, import the release-bound template from the private recommendation artifact. If you do not have it, complete the same experience and copy the manual handoff into chat.</div>
+
+  <nav class="toolbar">
+    <a class="link" href="index.html">Trait review</a>
+    <a class="link" href="calibration.html">Taste calibration</a>
+    <label class="file-label">Import release<input id="release-file" type="file" accept="application/json,.json"></label>
+    <button id="reset" class="danger">Start over</button>
+  </nav>
+
+  <div class="progressline"><span id="progress"></span><span id="source"></span></div>
+  <div class="bar"><span id="bar"></span></div>
+  <section class="panel" id="panel"></section>
+  <section class="handoff" id="handoff" hidden>
+    <div class="label">Ready to send</div>
+    <textarea id="handoff-text" readonly></textarea>
+    <div class="handoff-actions"><button id="copy" class="primary">Copy for chat</button><button id="download">Download JSON</button></div>
+    <div class="status" id="handoff-status"></div>
+  </section>
+</main>
+
+<script>
+const legacyFilms=[
+  {film_key:'title:noroi-the-curse:2005',title:'Noroi: The Curse',year:2005,predicted_score:.888,predicted_confidence:.678,drivers:['found footage realism','occult dread','sustained uncertainty','creeping dread'],uncertainty:'The model has limited direct evidence for Japanese documentary-style folk horror.'},
+  {film_key:'title:the-dark-and-the-wicked:2020',title:'The Dark and the Wicked',year:2020,predicted_score:.847,predicted_confidence:.526,drivers:['creeping dread','isolation','bleak ending','sound-driven tension'],uncertainty:'Confidence is moderate and the prediction leans heavily on dread and isolation.'},
+  {film_key:'title:possum:2018',title:'Possum',year:2018,predicted_score:.785,predicted_confidence:.413,drivers:['practical effects','psychological destabilization','liminal unease','creeping dread'],uncertainty:'Practical effects is explicit high-confidence evidence, but overall film fit remains less certain.'},
+  {film_key:'title:the-empty-man:2020',title:'The Empty Man',year:2020,predicted_score:.776,predicted_confidence:.360,drivers:['cosmic dread','slow burn','sustained uncertainty','occult dread'],uncertainty:'The score is strong, but confidence is low because several traits remain sparsely learned.'},
+  {film_key:'title:a-dark-song:2016',title:'A Dark Song',year:2016,predicted_score:.689,predicted_confidence:.535,drivers:['occult dread','grief','slow burn','isolation'],uncertainty:'The model expects thematic fit, but ritual pacing may determine whether the experience lands.'}
+];
+const storeKey='cinema-brain-unified-evaluation-v1',oldStoreKey='cinema-brain-human-evaluation-v1';
+const $=id=>document.getElementById(id),clone=value=>JSON.parse(JSON.stringify(value));
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const emptyFilm=film=>({...clone(film),already_seen:null,interest:null,prediction_reaction:null,watched_after_recommendation:null,actual_sentiment:null,would_recommend:null,actual_rating:null,reaction_text:'',notes:'',completed:null,glad_watched:null,fit_the_moment:null,watched_at:''});
+
+function initialState(){
+  const saved=localStorage.getItem(storeKey);if(saved){try{return JSON.parse(saved)}catch(e){}}
+  const state={version:'2.0.0',source_mode:'manual',source_artifact:'daniel-unwatched-horror-ranking-v2',release_template:null,films:legacyFilms.map(emptyFilm),index:0};
+  const old=localStorage.getItem(oldStoreKey);if(old){try{const prior=JSON.parse(old);state.films=state.films.map(f=>({...f,...(prior.films||[]).find(x=>x.film_key===f.film_key)}))}catch(e){}}
+  return state;
+}
+let state=initialState();
+function save(){localStorage.setItem(storeKey,JSON.stringify(state))}
+function setNotice(message,type=''){const el=$('notice');el.className='notice'+(type?' '+type:'');el.innerHTML=message}
+function answered(f){return f.already_seen!==null&&Boolean(f.interest)&&Boolean(f.prediction_reaction)}
+function outcomeReady(f){return f.watched_after_recommendation==='yes'&&f.actual_rating!==null&&f.reaction_text.trim()&&typeof f.completed==='boolean'&&typeof f.glad_watched==='boolean'}
+function choice(field,values){const f=state.films[state.index];return `<div class="choices">${values.map(([value,label])=>`<button type="button" data-field="${field}" data-value="${value}" class="${String(f[field])===value?'active':''}">${label}</button>`).join('')}</div>`}
+function localNow(){const d=new Date(),offset=d.getTimezoneOffset();return new Date(d.getTime()-offset*60000).toISOString().slice(0,16)}
+function isoFromLocal(value){if(!value)return new Date().toISOString();const parsed=new Date(value);return Number.isNaN(parsed.getTime())?new Date().toISOString():parsed.toISOString()}
+
+function render(){
+  const f=state.films[state.index],done=state.films.filter(answered).length;
+  $('mode').textContent=state.source_mode==='release_bound'?'Release-bound outcome':'Manual evaluation';
+  $('source').textContent=state.source_mode==='release_bound'?`Release ${state.release_template.release_id.slice(0,18)}…`:'Original top-five pack';
+  $('progress').textContent=`${state.index+1} of ${state.films.length} · ${done} reviewed`;$('bar').style.width=`${done/state.films.length*100}%`;
+  const score=f.predicted_score??f.taste_score,confidence=f.predicted_confidence??f.confidence;
+  $('panel').innerHTML=`
+    <h2 class="film">${esc(f.title)}${f.year?` <span class="muted">(${esc(f.year)})</span>`:''}</h2>
+    ${typeof score==='number'?`<div class="score">${Math.round(score*100)}% match</div>`:''}
+    ${typeof confidence==='number'?`<div class="muted">Confidence: ${Math.round(confidence*100)}%</div>`:''}
+    ${f.drivers?.length?`<div class="reasons">${f.drivers.map(x=>`<span class="reason">${esc(x)}</span>`).join('')}</div>`:''}
+    ${f.uncertainty?`<div class="uncertainty"><span class="label">Known uncertainty</span><br>${esc(f.uncertainty)}</div>`:''}
+    <div class="section"><h2>Before watching</h2><div class="muted">Keep the original recommendation signal.</div>
+      <div class="question"><span class="label">Had you already seen it?</span>${choice('already_seen',[['true','Yes'],['false','No']])}</div>
+      <div class="question"><span class="label">How interested were you?</span>${choice('interest',[['no','No'],['maybe','Maybe'],['yes','Yes']])}</div>
+      <div class="question"><span class="label">Did the explanation sound like you?</span>${choice('prediction_reaction',[['wrong','Wrong'],['partly_right','Partly right'],['nailed_it','Nailed it']])}</div>
+    </div>
+    <div class="section"><h2>After watching</h2><div class="muted">This is the outcome the Brain learns from.</div>
+      <div class="question"><span class="label">Did you watch it because Cinema Brain recommended it?</span>${choice('watched_after_recommendation',[['not_yet','Not yet'],['yes','Yes'],['no','No']])}</div>
+      <div class="question"><span class="label">Did you complete it?</span>${choice('completed',[['true','Yes'],['false','No']])}</div>
+      <div class="question"><span class="label">Are you genuinely glad you watched it?</span>${choice('glad_watched',[['true','Yes'],['false','No']])}</div>
+      <div class="question"><span class="label">Did it fit the moment?</span>${choice('fit_the_moment',[['true','Yes'],['false','No'],['null','Not sure']])}</div>
+      <div class="question"><span class="label">Actual reaction</span>${choice('actual_sentiment',[['dislike','Dislike'],['neutral','Neutral'],['like','Like'],['love','Love']])}</div>
+      <div class="question"><span class="label">Recommend it to someone with similar taste?</span>${choice('would_recommend',[['unknown','Not sure'],['yes','Yes'],['no','No']])}</div>
+      <div class="two">
+        <label><span class="label">Rating · 0.5–5.0</span><input id="rating" type="number" min="0.5" max="5" step="0.5" value="${f.actual_rating??''}"></label>
+        <label><span class="label">Finished at</span><input id="watched-at" type="datetime-local" value="${esc(f.watched_at||'')}"></label>
+      </div>
+      <div class="question"><label><span class="label">Immediate reaction · one honest sentence</span><textarea id="reaction" placeholder="What landed, failed, surprised you, or stayed with you?">${esc(f.reaction_text)}</textarea></label></div>
+      <div class="question"><label><span class="label">Anything else the Brain should understand?</span><textarea id="notes" placeholder="Optional nuance, mood, pacing, performances, ending, fear mechanism…">${esc(f.notes)}</textarea></label></div>
+    </div>
+    <div class="nav"><button id="prev" ${state.index===0?'disabled':''}>Previous</button><button id="handoff-button" class="primary">Create handoff</button><button id="next" ${state.index===state.films.length-1?'disabled':''}>Next</button></div>
+    <div class="status" id="status"></div>`;
+  document.querySelectorAll('[data-field]').forEach(button=>button.onclick=()=>{let value=button.dataset.value;if(['already_seen','completed','glad_watched','fit_the_moment'].includes(button.dataset.field))value=value==='null'?null:value==='true';f[button.dataset.field]=value;save();render()});
+  $('rating').onchange=e=>{const value=e.target.value;f.actual_rating=value?Number(value):null;save()};
+  $('watched-at').onchange=e=>{f.watched_at=e.target.value;save()};
+  $('reaction').oninput=e=>{f.reaction_text=e.target.value;save()};$('notes').oninput=e=>{f.notes=e.target.value;save()};
+  $('prev').onclick=()=>{state.index--;save();render();scrollTo(0,0)};$('next').onclick=()=>{state.index++;save();render();scrollTo(0,0)};
+  $('handoff-button').onclick=prepareHandoff;
+}
+
+function releaseSubmission(f){const t=state.release_template;return {version:t.version,submission_type:t.submission_type,release_id:t.release_id,audit_id:t.audit_id,released_predictions:t.released_predictions,film_key:f.film_key,watched_at:isoFromLocal(f.watched_at),recorded_at:new Date().toISOString(),actual_rating:f.actual_rating,reaction_text:f.reaction_text.trim(),completed:f.completed,glad_watched:f.glad_watched,fit_the_moment:f.fit_the_moment}}
+function manualSubmission(f){return {version:'1.0.0',submission_type:'post_watch_manual_intake',source_artifact:state.source_artifact,film_key:f.film_key,title:f.title,year:f.year??null,watched_at:isoFromLocal(f.watched_at),recorded_at:new Date().toISOString(),actual_rating:f.actual_rating,reaction_text:f.reaction_text.trim(),completed:f.completed,glad_watched:f.glad_watched,fit_the_moment:f.fit_the_moment,already_seen:f.already_seen,interest:f.interest,prediction_reaction:f.prediction_reaction,watched_after_recommendation:f.watched_after_recommendation,actual_sentiment:f.actual_sentiment,would_recommend:f.would_recommend,notes:f.notes.trim(),release_binding_status:'manual_unbound_do_not_count_as_recommendation_trust_until_verified'} }
+function handoffText(payload,f){const binding=state.source_mode==='release_bound'?`Release: ${payload.release_id}\nAudit: ${payload.audit_id}`:`Source: ${payload.source_artifact}\nBinding: manual — verify against a pre-watch release before counting Recommendation Trust`;return `Cinema Brain post-watch handoff\nMovie: ${f.title}${f.year?` (${f.year})`:''}\nFilm key: ${f.film_key}\n${binding}\nRating: ${f.actual_rating}/5\nImmediate reaction: ${f.reaction_text.trim()}\nCompleted: ${f.completed?'yes':'no'}\nGlad I watched: ${f.glad_watched?'yes':'no'}\nFit the moment: ${f.fit_the_moment===null?'not sure':f.fit_the_moment?'yes':'no'}\nWatched because of Cinema Brain: ${f.watched_after_recommendation}\nExplanation fit: ${f.prediction_reaction||'not answered'}\nSentiment: ${f.actual_sentiment||'not answered'}\nWould recommend to similar taste: ${f.would_recommend||'not answered'}\nFinished at: ${payload.watched_at}\nNotes: ${f.notes.trim()||'none'}\n\nMachine-readable JSON:\n${JSON.stringify(payload,null,2)}`}
+function prepareHandoff(){const f=state.films[state.index];if(!f.watched_at)f.watched_at=localNow();if(!outcomeReady(f)){return $('status').textContent='To create the outcome, answer: watched because of Cinema Brain, rating, immediate reaction, completed, and glad you watched.'}if(f.actual_rating<.5||f.actual_rating>5){return $('status').textContent='Rating must be between 0.5 and 5.0.'}const payload=state.source_mode==='release_bound'?releaseSubmission(f):manualSubmission(f);$('handoff-text').value=handoffText(payload,f);$('handoff').hidden=false;$('handoff').dataset.payload=JSON.stringify(payload);save();$('handoff').scrollIntoView({behavior:'smooth'})}
+
+function importRelease(template){if(!template||template.version!=='1.0.0'||template.submission_type!=='post_watch_outcome_submission'||!template.release_id||!template.audit_id||!Array.isArray(template.released_predictions)||!template.released_predictions.length)throw new Error('That file is not a valid Post-watch Outcome Submission v1 template.');const previous=new Map(state.films.map(f=>[f.film_key,f]));state.source_mode='release_bound';state.release_template=clone(template);state.source_artifact=null;state.films=template.released_predictions.map(item=>{const legacy=legacyFilms.find(f=>f.film_key===item.film_key)||{};return {...emptyFilm({...legacy,...item}),...(previous.get(item.film_key)||{})}});state.index=0;save();setNotice(`<strong>Release loaded.</strong> Your answers will export with the frozen release and audit identities intact.`,'success');render()}
+$('release-file').onchange=async event=>{try{const file=event.target.files[0];if(!file)return;importRelease(JSON.parse(await file.text()))}catch(error){setNotice(`<strong>Import failed.</strong> ${esc(error.message)}`,'error')}finally{event.target.value=''}};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('handoff-text').value);$('handoff-status').textContent='Copied. Paste it into chat.'}catch(error){$('handoff-text').select();$('handoff-status').textContent='Select Copy, then paste it into chat.'}};
+$('download').onclick=()=>{const payload=JSON.parse($('handoff').dataset.payload),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download=state.source_mode==='release_bound'?'post_watch_outcome_submission_v1.json':'cinema_brain_manual_handoff_v1.json';a.click();URL.revokeObjectURL(a.href)};
+$('reset').onclick=()=>{if(confirm('Clear locally saved answers and the imported release?')){localStorage.removeItem(storeKey);localStorage.removeItem(oldStoreKey);state=initialState();$('handoff').hidden=true;setNotice('<strong>Fresh evaluation started.</strong> Import a release template for a formally frozen outcome, or use the manual flow.');render()}};
+render();
+</script>
+</body>
+</html>
