@@ -10,6 +10,7 @@ from .ingest import ingest
 from .metadata_enrichment import enrich_films, write_enrichment_report
 from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
 from .manual_outcome_reconciliation import write_manual_outcome_reconciliation
+from .outcome_memory_promotion import promote_outcome_watch_file
 from .persisted_taste_signals import build_persisted_personal_taste_graph
 from .post_watch_outcomes import write_post_watch_outcome
 from .profile_review_workflow import build_review_worksheet, compile_review, promote_reviewed_profiles
@@ -45,6 +46,7 @@ def parser() -> argparse.ArgumentParser:
     profile_promote = sub.add_parser("profile-review-promote"); profile_promote.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_promote.add_argument("--decisions", default="reports/canonical_horror_profile_decisions.json"); profile_promote.add_argument("--registry", default="config/trait_registry_v1.json"); profile_promote.add_argument("--next-version", required=True); profile_promote.add_argument("--output", required=True)
     outcome = sub.add_parser("record-recommendation-outcome"); outcome.add_argument("--manifest", required=True); outcome.add_argument("--snapshot", required=True); outcome.add_argument("--audit", required=True); outcome.add_argument("--submission", required=True); outcome.add_argument("--output-dir", default="outcomes")
     manual_outcome = sub.add_parser("reconcile-manual-outcome"); manual_outcome.add_argument("--evaluation", required=True); manual_outcome.add_argument("--submission", required=True); manual_outcome.add_argument("--output-dir", default="outcomes/manual")
+    promote_watch = sub.add_parser("promote-outcome-watch"); promote_watch.add_argument("--outcome", required=True); promote_watch.add_argument("--manual-watches", default="data/manual/manual_watches.csv"); promote_watch.add_argument("--timezone", required=True, dest="timezone_name")
     return p
 
 
@@ -82,6 +84,9 @@ def main() -> int:
     if args.command == "reconcile-manual-outcome":
         outcome, candidate, outcome_path, candidate_path = write_manual_outcome_reconciliation(Path(args.evaluation), Path(args.submission), Path(args.output_dir))
         print(json.dumps({"outcome_id": outcome["outcome_id"], "binding_status": outcome["binding"]["status"], "formal_release_bound_trust_eligible": outcome["binding"]["formal_release_bound_trust_eligible"], "observed_recommendation_trust": outcome["evaluation"]["observed_recommendation_trust"], "prediction_error": outcome["evaluation"]["prediction_error"], "outcome_path": str(outcome_path), "review_candidate_id": candidate["fixture_id"] if candidate else None, "review_candidate_path": str(candidate_path) if candidate_path else None}, indent=2, ensure_ascii=False)); return 0
+    if args.command == "promote-outcome-watch":
+        result = promote_outcome_watch_file(Path(args.outcome), Path(args.manual_watches), timezone_name=args.timezone_name)
+        print(json.dumps(result, indent=2, ensure_ascii=False)); return 0
     return 2
 
 
