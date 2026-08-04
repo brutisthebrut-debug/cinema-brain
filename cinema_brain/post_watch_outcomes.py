@@ -241,6 +241,7 @@ def capture_post_watch_outcome(
         "prediction": {
             "film_key": prediction["film_key"],
             "title": prediction.get("title"),
+            "year": prediction.get("year"),
             "raw_rank": prediction.get("raw_rank"),
             "slate_rank": prediction.get("slate_rank"),
             "slate_role": prediction.get("slate_role"),

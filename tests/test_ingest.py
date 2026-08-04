@@ -2,7 +2,7 @@ import csv
 import sqlite3
 from pathlib import Path
 
-from cinema_brain.ingest import ingest
+from cinema_brain.ingest import film_identity, ingest
 from cinema_brain.validate import validate
 
 
@@ -46,6 +46,15 @@ def test_ingest_merges_different_letterboxd_urls(tmp_path):
     assert event == ("2020-01-01",)
     errors, _ = validate(db)
     assert errors == []
+
+
+def test_film_identity_drops_apostrophes_and_normalizes_other_punctuation():
+    assert film_identity({"name": "The Blackcoat's Daughter", "year": "2015"})[
+        0
+    ] == "title:the-blackcoats-daughter:2015"
+    assert film_identity({"name": "Noroi: The Curse", "year": "2005"})[
+        0
+    ] == "title:noroi-the-curse:2005"
 
 
 def test_letterboxd_list_export_is_parsed(tmp_path):

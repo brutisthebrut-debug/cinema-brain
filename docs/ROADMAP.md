@@ -444,8 +444,10 @@ The release-level execution state is maintained in `docs/BRAIN_RELEASES.md`. The
 7. Preserve Post-watch Outcome Capture v1 as the append-only Learning contract keyed by `release_id`.
 8. Preserve Unified Evaluation Experience v1 and Manual Outcome Reconciliation v1.
 9. Preserve the reviewed Noroi outcome and its unpromoted calibration candidate.
-10. Capture a second frozen outcome before changing calibration or taste dimensions.
-11. Expand the horror benchmark to 25 and then 50 only when repeated measured gaps justify it.
+10. Preserve Outcome-to-Memory Promotion v1 and the canonical Noroi watch.
+11. Generate a post-Noroi release and capture its release-bound outcome before
+    changing calibration or taste dimensions.
+12. Expand the horror benchmark to 25 and then 50 only when repeated measured gaps justify it.
 
 No additional provider, governance, social, marketplace, or dashboard-owned intelligence work should interrupt this sequence unless a real blocker requires it.
 
@@ -469,6 +471,9 @@ No additional provider, governance, social, marketplace, or dashboard-owned inte
 This is the first verified recommendation outcome. It supports the slate decision
 while challenging score calibration. Narrative legibility remains a candidate
 dimension until another outcome shows the same pattern.
+
+The completed outcome is also canonical watched memory. Future rankings must
+exclude Noroi before freezing the next slate.
 
 ## Undertone (2025)
 

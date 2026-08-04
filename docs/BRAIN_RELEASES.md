@@ -241,6 +241,20 @@ Shipped:
 - append-only private outcome storage and a CLI workflow;
 - first-outcome review for Noroi: The Curse (2005).
 
+#### Outcome-to-Memory Promotion v1
+
+Status: implemented as the fail-closed bridge from verified completed outcomes
+to canonical watched memory.
+
+Shipped:
+
+- support for verified legacy and release-bound outcome records;
+- explicit frozen-before-outcome and completion checks;
+- local-date conversion using an operator-supplied IANA timezone;
+- idempotent append to the canonical manual-watch ledger;
+- outcome-ID provenance without copying private reaction evidence;
+- canonical Noroi memory and future watched-exclusion coverage.
+
 First evidence:
 
 - completed, glad watched, fit the moment, 3.5/5, `like`, and would recommend;
@@ -251,8 +265,8 @@ First evidence:
 
 Next validation work:
 
-1. Capture a second outcome from the already frozen top five or a new
-   release-bound slate and compare its calibration evidence with Noroi.
+1. Generate a new release-bound slate from the canonical memory that now
+   excludes Noroi, then capture its outcome and compare calibration evidence.
 2. Decide whether narrative legibility is a durable missing dimension only after
    repeated evidence, not from one note.
 3. Expand the horror benchmark only when measured outcome gaps justify the next films.
@@ -346,5 +360,7 @@ The active sequence is:
    them by `release_id` when verified and reconciling pre-gate manual evidence
    without mixing the two trust populations
 9. preserve the reviewed Noroi outcome and its unpromoted calibration candidate
-10. collect a second frozen outcome before changing calibration or taste dimensions
-11. expand corpus and confidence only when repeated outcome evidence supports it
+10. preserve Outcome-to-Memory Promotion v1 and the canonical Noroi watch
+11. generate a post-Noroi release and collect its release-bound outcome before
+    changing calibration or taste dimensions
+12. expand corpus and confidence only when repeated outcome evidence supports it

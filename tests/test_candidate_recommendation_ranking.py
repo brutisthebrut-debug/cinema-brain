@@ -72,9 +72,16 @@ def test_load_watched_film_keys_from_canonical_database(tmp_path: Path) -> None:
     connection.execute("CREATE TABLE films (name TEXT, year INTEGER, watched INTEGER)")
     connection.executemany(
         "INSERT INTO films VALUES (?, ?, ?)",
-        [("The Empty Man", 2020, 1), ("Unwatched", 2021, 0)],
+        [
+            ("The Empty Man", 2020, 1),
+            ("Noroi: The Curse", 2005, 1),
+            ("Unwatched", 2021, 0),
+        ],
     )
     connection.commit()
     connection.close()
 
-    assert load_watched_film_keys(db_path) == {"title:the-empty-man:2020"}
+    assert load_watched_film_keys(db_path) == {
+        "title:the-empty-man:2020",
+        "title:noroi-the-curse:2005",
+    }

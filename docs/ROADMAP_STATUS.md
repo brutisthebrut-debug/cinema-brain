@@ -82,8 +82,8 @@ release blocks current production.
 
 ## Brain v0.3 — active recommendation validation
 
-The active goal is to measure a real frozen recommendation against Daniel's actual
-reaction without allowing the outcome to rewrite its prediction.
+The active goal is to measure a second frozen recommendation against Daniel's
+actual reaction without allowing the outcome to rewrite its prediction.
 
 ### Completed — Canonical Trait Model v1
 
@@ -192,6 +192,10 @@ legibility remains a candidate dimension, not promoted taste truth.
 Do not begin the 25-film expansion until a second frozen outcome shows whether
 either gap repeats.
 
+Noroi is now canonical watched memory through Outcome-to-Memory Promotion v1.
+The next release must exclude it before ranking and bind the second watch to a
+real `release_id`.
+
 ## Later intelligence phases
 
 - Taste drift and era snapshots
@@ -243,8 +247,10 @@ These ideas remain valid future options, but they do not belong in the active se
 6. Preserve Unified Evaluation Experience v1 as the single human-facing loop over
    pre-watch evaluation, release-bound outcome capture, and manual fallback.
 7. Preserve Manual Outcome Reconciliation v1 and the reviewed Noroi outcome.
-8. Capture a second frozen outcome and compare calibration and narrative-legibility evidence.
-9. Expand the reviewed horror benchmark to 25 and then 50 only when repeated gaps
+8. Preserve Outcome-to-Memory Promotion v1 and the canonical Noroi watch.
+9. Generate a post-Noroi frozen slate, capture its release-bound outcome, and
+   compare calibration and narrative-legibility evidence.
+10. Expand the reviewed horror benchmark to 25 and then 50 only when repeated gaps
    from real outcomes justify the added films.
 
 No additional provider, workflow-governance, interface, or social work should
