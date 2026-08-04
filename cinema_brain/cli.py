@@ -10,6 +10,7 @@ from .ingest import ingest
 from .metadata_enrichment import enrich_films, write_enrichment_report
 from .metadata_evidence_batch import extract_and_persist_metadata_evidence, write_batch_report
 from .persisted_taste_signals import build_persisted_personal_taste_graph
+from .post_watch_outcomes import write_post_watch_outcome
 from .profile_review_workflow import build_review_worksheet, compile_review, promote_reviewed_profiles
 from .recommend import recommend
 from .report import build_report
@@ -41,6 +42,7 @@ def parser() -> argparse.ArgumentParser:
     profile_template = sub.add_parser("profile-review-template"); profile_template.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_template.add_argument("--output", default="reports/canonical_horror_profile_review.csv")
     profile_compile = sub.add_parser("profile-review-compile"); profile_compile.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_compile.add_argument("--worksheet", default="reports/canonical_horror_profile_review.csv"); profile_compile.add_argument("--reviewer", required=True); profile_compile.add_argument("--output", default="reports/canonical_horror_profile_decisions.json")
     profile_promote = sub.add_parser("profile-review-promote"); profile_promote.add_argument("--profiles", default="config/canonical_horror_profiles_v1.json"); profile_promote.add_argument("--decisions", default="reports/canonical_horror_profile_decisions.json"); profile_promote.add_argument("--registry", default="config/trait_registry_v1.json"); profile_promote.add_argument("--next-version", required=True); profile_promote.add_argument("--output", required=True)
+    outcome = sub.add_parser("record-recommendation-outcome"); outcome.add_argument("--manifest", required=True); outcome.add_argument("--snapshot", required=True); outcome.add_argument("--audit", required=True); outcome.add_argument("--submission", required=True); outcome.add_argument("--output-dir", default="outcomes")
     return p
 
 
@@ -72,6 +74,9 @@ def main() -> int:
     if args.command == "profile-review-template": print(json.dumps(build_review_worksheet(Path(args.profiles), Path(args.output)), indent=2)); return 0
     if args.command == "profile-review-compile": print(json.dumps(compile_review(Path(args.profiles), Path(args.worksheet), Path(args.output), reviewer=args.reviewer), indent=2)); return 0
     if args.command == "profile-review-promote": print(json.dumps(promote_reviewed_profiles(Path(args.profiles), Path(args.decisions), Path(args.registry), Path(args.output), next_version=args.next_version), indent=2)); return 0
+    if args.command == "record-recommendation-outcome":
+        outcome, fixture, outcome_path, fixture_path = write_post_watch_outcome(Path(args.manifest), Path(args.snapshot), Path(args.audit), Path(args.submission), Path(args.output_dir))
+        print(json.dumps({"outcome_id": outcome["outcome_id"], "release_id": outcome["release_id"], "recommendation_trust": outcome["evaluation"]["recommendation_trust"], "prediction_error": outcome["evaluation"]["prediction_error"], "outcome_path": str(outcome_path), "regression_fixture_id": fixture["fixture_id"] if fixture else None, "regression_fixture_path": str(fixture_path) if fixture_path else None}, indent=2, ensure_ascii=False)); return 0
     return 2
 
 
