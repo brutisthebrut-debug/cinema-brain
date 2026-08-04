@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from cinema_brain.canonical_taste_scoring import score_canonical_films
+from cinema_brain.ingest import film_identity
 
 MIN_ACTIVE_TRAITS = 2
 MIN_TRAIT_COVERAGE = 0.50
@@ -13,8 +14,7 @@ MIN_CONFIDENCE = 0.15
 
 
 def _identity_key(title: str, year: int) -> str:
-    slug = "-".join(title.casefold().replace("'", "").split())
-    return f"title:{slug}:{year}"
+    return film_identity({"name": title, "year": str(year)})[0]
 
 
 def load_watched_film_keys(db_path: Path) -> set[str]:
