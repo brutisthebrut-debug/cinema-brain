@@ -74,7 +74,9 @@ Definition of done:
 
 Status: active production validation; corpus and ranking are complete through PR
 #60, and release gates, audit, health inspection, and post-watch outcome capture are
-complete through PR #64. The first real release outcome is awaiting review.
+complete through PR #64. The original evaluation UI and the release-bound outcome
+contract are unified in Unified Evaluation Experience v1. The first real outcome
+is awaiting review.
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
@@ -209,6 +211,21 @@ Shipped:
 - aggregate Recommendation Trust, completion, moment-fit, and calibration summaries
 - production artifact packaging, CLI capture, regression coverage, and a permanent handoff
 
+#### Unified Evaluation Experience v1
+
+Status: implemented as the single thin client over original human evaluation and
+Post-watch Outcome Capture v1.
+
+Shipped:
+
+- one mobile page for pre-watch fit and post-watch outcome evidence;
+- local import of the release-bound submission template;
+- exact Outcome Capture v1 export without changing immutable identity fields;
+- a copyable manual handoff when the private artifact is unavailable;
+- explicit exclusion of unverified manual intake from Recommendation Trust;
+- migration of existing Human Evaluation Pack v1 browser answers by `film_key`;
+- no network requests, ranking logic, trust calculation, or taste mutation.
+
 Next validation work:
 
 1. Capture the first real release outcome and review its regression decision before promoting any learning evidence.
@@ -299,6 +316,7 @@ The active sequence is:
 5. enforce Recommendation Release Gates v1 and freeze the prediction manifest and snapshot
 6. preserve Recommendation Audit v1 as the read-only diagnostic contract
 7. preserve Brain Health Dashboard v1 as the thin read-only audit surface
-8. collect post-watch outcomes by `release_id` and measure Recommendation Trust
+8. collect post-watch outcomes through the unified evaluation experience, binding
+   them by `release_id` when verified, and measure Recommendation Trust
 9. review the first outcome and any regression fixture before promoting learning evidence
 10. expand corpus and confidence only when outcome evidence supports it
