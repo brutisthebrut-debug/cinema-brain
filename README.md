@@ -15,11 +15,17 @@ GitHub Actions artifacts unless Daniel intentionally promotes reviewed evidence.
 | --- | --- |
 | Release | Brain v0.3 — Recommendation Intelligence |
 | State on `main` | Implemented through Manual Outcome Reconciliation v1 and Outcome-to-Memory Promotion v1 |
-| Current operation | Generate a post-Noroi frozen release and collect its release-bound outcome |
+| Current operation | Use frozen release `recommendation-6852bacab2c7499e0a8c` and collect its release-bound outcome |
 | Next implementation decision | Revisit calibration and narrative-legibility coverage only if the second outcome confirms the gap |
 
 Do not automatically change taste weights, promote a regression fixture, expand
 the corpus, or begin a new UI/provider feature before that review.
+
+The active private release was generated from merge commit `72791d4` after Noroi
+entered canonical watched memory. Its frozen slate is The Dark and the Wicked,
+Possum, The Empty Man, A Dark Song, and Saint Maud. Import the package's
+`post_watch_outcome_submission_v1.json` into the unified evaluation page; do not
+generate or backdate a replacement release after a film is selected.
 
 Authoritative execution state:
 
