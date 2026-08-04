@@ -2,6 +2,32 @@
 
 These notes record capabilities shipped, architectural changes, lessons, accepted debt, and the next production milestone. They are not marketing notes.
 
+## Outcome-to-Memory Promotion v1
+
+**Date:** 2026-08-04
+
+### Shipped
+
+- Added fail-closed promotion from verified completed outcomes into canonical
+  manual watched memory.
+- Supports both reconciled legacy outcomes and release-bound outcomes.
+- Requires explicit timezone conversion, preserves outcome-ID provenance, and
+  remains idempotent by film and local watched date.
+- Promoted Noroi: The Curse (2005) at 3.5/5 on its local August 3 viewing date.
+- Removed a duplicate ranker identity normalizer and aligned apostrophe handling
+  so watched titles with punctuation resolve to the same canonical corpus key.
+
+### Boundary preserved
+
+- No private reaction text was copied into GitHub.
+- No taste weight, trait, calibration candidate, or regression fixture changed.
+- The next ranking must exclude Noroi before a new release is frozen.
+
+### Next production operation
+
+Generate the first post-Noroi release-bound slate and capture its outcome before
+making any calibration or narrative-legibility decision.
+
 ## Manual Outcome Reconciliation v1
 
 **Date:** 2026-08-04
