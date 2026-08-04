@@ -2,6 +2,34 @@
 
 These notes record capabilities shipped, architectural changes, lessons, accepted debt, and the next production milestone. They are not marketing notes.
 
+## Unified Evaluation Experience v1
+
+**Date:** 2026-08-03
+
+### Shipped
+
+- Replaced the split Human Evaluation Pack and JSON-only outcome instructions with
+  one mobile-ready evaluation experience at the existing GitHub Pages URL.
+- Preserved original pre-watch interest and explanation-fit questions.
+- Added all release-bound rating, reaction, completion, glad-watched, moment-fit,
+  and timestamp fields.
+- Added validated release-template import and exact Outcome Capture v1 export.
+- Added a copyable manual chat handoff that is explicitly barred from Recommendation
+  Trust until a qualifying pre-watch release is verified.
+- Migrated existing v1 browser answers and kept the page network-free.
+
+### Drift corrected
+
+PR #56 established the intended easy evaluation experience. PRs #61–#64 correctly
+strengthened the underlying release, audit, and outcome contracts, but did not carry
+the UI forward. The gap became visible when the old page could not submit the first
+new outcome. The fix unifies both generations without weakening either contract.
+
+### Next production operation
+
+Use the unified page for the active movie outcome, verify its binding, record the
+append-only result, and review any regression decision before changing the model.
+
 ## Brain v0.3 — Recommendation Intelligence validation
 
 **Date:** 2026-08-03
