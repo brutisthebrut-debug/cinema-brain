@@ -230,8 +230,10 @@ These ideas remain valid future options, but they do not belong in the active se
 4. Preserve Recommendation Release Gates v1, Recommendation Audit v1, and the
    read-only Brain Health Dashboard through PRs #61–#63.
 5. Preserve Post-watch Outcome Capture v1 through PR #64.
-6. Capture and review the first real outcome and any regression fixture.
-7. Expand the reviewed horror benchmark to 25 and then 50 only when measured gaps
+6. Preserve Unified Evaluation Experience v1 as the single human-facing loop over
+   pre-watch evaluation, release-bound outcome capture, and manual fallback.
+7. Capture and review the first real outcome and any regression fixture.
+8. Expand the reviewed horror benchmark to 25 and then 50 only when measured gaps
    from real outcomes justify the added films.
 
 No additional provider, workflow-governance, interface, or social work should
