@@ -72,7 +72,9 @@ Definition of done:
 
 ## Brain v0.3 — Recommendation Intelligence
 
-Status: active production release; milestones 1 and 2 complete through PR #60; milestone 3 release gating, audit, and health inspection active
+Status: active production validation; corpus and ranking are complete through PR
+#60, and release gates, audit, health inspection, and post-watch outcome capture are
+complete through PR #64. The first real release outcome is awaiting review.
 
 Goal: produce bounded, explainable recommendations for eligible unwatched films while measuring whether Daniel would actually be glad he watched them.
 
