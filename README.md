@@ -14,9 +14,9 @@ GitHub Actions artifacts unless Daniel intentionally promotes reviewed evidence.
 | Handoff field | Current value |
 | --- | --- |
 | Release | Brain v0.3 — Recommendation Intelligence |
-| State on `main` | Implemented through Post-watch Outcome Capture v1, Unified Evaluation Experience v1, and Manual Outcome Reconciliation v1 |
-| Current operation | Preserve the verified Noroi outcome and collect a second frozen recommendation outcome |
-| Next implementation decision | Revisit calibration and narrative-legibility coverage only if the next outcome confirms the gap |
+| State on `main` | Implemented through Manual Outcome Reconciliation v1 and Outcome-to-Memory Promotion v1 |
+| Current operation | Generate a post-Noroi frozen release and collect its release-bound outcome |
+| Next implementation decision | Revisit calibration and narrative-legibility coverage only if the second outcome confirms the gap |
 
 Do not automatically change taste weights, promote a regression fixture, expand
 the corpus, or begin a new UI/provider feature before that review.
@@ -29,6 +29,7 @@ Authoritative execution state:
 - [`docs/POST_WATCH_OUTCOME_CAPTURE_V1.md`](docs/POST_WATCH_OUTCOME_CAPTURE_V1.md) — current operating contract
 - [`docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md`](docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md) — human-facing evaluation and manual fallback
 - [`docs/MANUAL_OUTCOME_RECONCILIATION_V1.md`](docs/MANUAL_OUTCOME_RECONCILIATION_V1.md) — verified legacy binding and first-outcome review
+- [`docs/OUTCOME_TO_MEMORY_PROMOTION_V1.md`](docs/OUTCOME_TO_MEMORY_PROMOTION_V1.md) — safe watched-memory promotion before the next release
 
 ## What is production-ready
 
@@ -68,6 +69,8 @@ Authoritative execution state:
   meaningfully misses.
 - Reconciles manual handoffs against pre-gate frozen predictions without
   inventing a `release_id` or contaminating formal Recommendation Trust.
+- Promotes verified completed outcomes into canonical watched memory without
+  copying private reactions or changing taste weights.
 
 The North Star is **Recommendation Trust**: if Cinema Brain recommends five films,
 how many is Daniel genuinely glad he watched?
@@ -182,6 +185,19 @@ The first verified manual outcome is Noroi: The Curse (2005): completed,
 glad-watched, moment fit, 3.5/5, and an unpromoted calibration review candidate.
 See the reconciliation contract for the safe aggregate and exact handoff.
 
+Before generating the next slate, promote a verified completed outcome into
+canonical watched memory:
+
+```bash
+python -m cinema_brain.cli promote-outcome-watch \
+  --outcome manual_outcome_reconciliation_v1.json \
+  --manual-watches data/manual/manual_watches.csv \
+  --timezone America/New_York
+```
+
+Noroi is already promoted using its local viewing date, August 3, 2026. Every
+future release must show it in `watched_exclusions` rather than the eligible slate.
+
 In the release-bound submission, preserve `version`, `submission_type`,
 `release_id`, `audit_id`, and `released_predictions`. Fill only:
 
@@ -252,6 +268,7 @@ still apply.
 - [`docs/BRAIN_HEALTH_DASHBOARD_V1.md`](docs/BRAIN_HEALTH_DASHBOARD_V1.md) — dashboard boundary
 - [`docs/POST_WATCH_OUTCOME_CAPTURE_V1.md`](docs/POST_WATCH_OUTCOME_CAPTURE_V1.md) — append-only outcome contract
 - [`docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md`](docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md) — unified evaluation UI contract
+- [`docs/OUTCOME_TO_MEMORY_PROMOTION_V1.md`](docs/OUTCOME_TO_MEMORY_PROMOTION_V1.md) — verified outcome-to-watched-memory boundary
 
 ## Privacy
 
