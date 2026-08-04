@@ -14,8 +14,8 @@ GitHub Actions artifacts unless Daniel intentionally promotes reviewed evidence.
 | Handoff field | Current value |
 | --- | --- |
 | Release | Brain v0.3 — Recommendation Intelligence |
-| State on `main` | Implemented through Post-watch Outcome Capture v1 in PR #64 |
-| Current operation | Capture and review the first real outcome from a frozen recommendation release |
+| State on `main` | Implemented through Post-watch Outcome Capture v1 and the Unified Evaluation Experience v1 |
+| Current operation | Capture the first real outcome in the unified page, then verify and review it |
 | Next implementation decision | Expand the horror benchmark only after the outcome and any regression fixture reveal a measured coverage gap |
 
 Do not automatically change taste weights, promote a regression fixture, expand
@@ -27,6 +27,7 @@ Authoritative execution state:
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — long-term product and engineering roadmap
 - [`docs/ROADMAP_STATUS.md`](docs/ROADMAP_STATUS.md) — implemented, active, and parked work
 - [`docs/POST_WATCH_OUTCOME_CAPTURE_V1.md`](docs/POST_WATCH_OUTCOME_CAPTURE_V1.md) — current operating contract
+- [`docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md`](docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md) — human-facing evaluation and manual fallback
 
 ## What is production-ready
 
@@ -57,6 +58,8 @@ Authoritative execution state:
 - Generates a read-only Recommendation Audit keyed by `release_id`.
 - Packages a local Brain Health Dashboard that renders verified audit data only.
 - Packages a release-bound post-watch submission template.
+- Exposes one mobile-ready evaluation page for pre-watch fit, post-watch outcome,
+  release-bound export, and explicit manual handoff.
 - Records rating, reaction, completion, glad-watched, and moment-fit evidence
   append-only.
 - Calculates Recommendation Trust and versioned prediction error.
@@ -148,6 +151,19 @@ outcome fields in `post_watch_outcome_submission_v1.json` are filled after viewi
 
 ## Record the first real outcome
 
+Open the [live unified evaluation page](https://brutisthebrut-debug.github.io/cinema-brain/evaluate.html).
+
+Preferred path: import `post_watch_outcome_submission_v1.json` from the private
+recommendation artifact. The page preserves the frozen release identity, limits
+the film picker to the released slate, collects the full pre-watch and post-watch
+reaction, and exports the exact submission contract below.
+
+Manual path: complete the same questions without an import and use **Copy for
+chat**. The manual record remains useful evaluation evidence, but it cannot count
+as formal Recommendation Trust unless an agent verifies that a matching frozen
+release existed before the watch. Never create or backdate a release after seeing
+the outcome.
+
 In the release-bound submission, preserve `version`, `submission_type`,
 `release_id`, `audit_id`, and `released_predictions`. Fill only:
 
@@ -217,6 +233,7 @@ still apply.
 - [`docs/RECOMMENDATION_AUDIT_V1.md`](docs/RECOMMENDATION_AUDIT_V1.md) — read-only diagnostic contract
 - [`docs/BRAIN_HEALTH_DASHBOARD_V1.md`](docs/BRAIN_HEALTH_DASHBOARD_V1.md) — dashboard boundary
 - [`docs/POST_WATCH_OUTCOME_CAPTURE_V1.md`](docs/POST_WATCH_OUTCOME_CAPTURE_V1.md) — append-only outcome contract
+- [`docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md`](docs/UNIFIED_EVALUATION_EXPERIENCE_V1.md) — unified evaluation UI contract
 
 ## Privacy
 
