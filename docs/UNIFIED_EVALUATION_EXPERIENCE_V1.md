@@ -74,10 +74,11 @@ Manual records carry:
 
 `manual_unbound_do_not_count_as_recommendation_trust_until_verified`
 
-An agent may later bind the intake only when it can prove a qualifying frozen
-release existed before the watch and contained the same `film_key`. Otherwise the
-record remains useful human-evaluation evidence but must not be counted as formal
-Recommendation Trust. The system never backdates or invents a release identity.
+An agent may later bind the intake to a formal release only when the complete
+manifest, snapshot, audit, and matching `release_id` existed before the watch. A
+pre-gate frozen prediction may instead pass Manual Outcome Reconciliation v1;
+that produces verified legacy evidence while leaving formal release-bound trust
+null. The system never backdates or invents a release identity.
 
 ## Privacy and storage
 
@@ -98,7 +99,7 @@ Recommendation Trust. The system never backdates or invents a release identity.
 
 ## Resume point
 
-After deployment, Daniel can use the live page immediately. The next production
-operation remains first-outcome review. No taste-weight change, regression
-promotion, or corpus expansion is authorized until that evidence is inspected.
-
+The first manual handoff, Noroi: The Curse (2005), has passed the reconciliation
+boundary and is reviewed. The next production operation is a second frozen
+outcome. No taste-weight change, candidate promotion, or corpus expansion is
+authorized until repeated evidence is inspected.
