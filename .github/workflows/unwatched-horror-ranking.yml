@@ -167,6 +167,27 @@ jobs:
       - name: Package read-only Brain health dashboard
         run: cp tools/brain-health/index.html artifacts/brain_health_dashboard_v1.html
 
+      - name: Build release-bound post-watch outcome template
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          from cinema_brain.post_watch_outcomes import write_outcome_capture_template
+
+          template = write_outcome_capture_template(
+              Path('artifacts/recommendation_release_manifest_v1.json'),
+              Path('artifacts/recommendation_prediction_snapshot_v1.json'),
+              Path('artifacts/recommendation_audit_v1.json'),
+              Path('artifacts/post_watch_outcome_submission_v1.json'),
+          )
+          print(json.dumps({
+              'release_id': template['release_id'],
+              'audit_id': template['audit_id'],
+              'released_prediction_count': len(template['released_predictions']),
+          }, indent=2))
+          PY
+
       - name: Upload private recommendation artifact
         uses: actions/upload-artifact@v4
         with:
@@ -179,5 +200,6 @@ jobs:
             artifacts/recommendation_prediction_snapshot_v1.json
             artifacts/recommendation_audit_v1.json
             artifacts/brain_health_dashboard_v1.html
+            artifacts/post_watch_outcome_submission_v1.json
           if-no-files-found: error
           retention-days: 30
