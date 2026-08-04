@@ -193,8 +193,11 @@ Do not begin the 25-film expansion until a second frozen outcome shows whether
 either gap repeats.
 
 Noroi is now canonical watched memory through Outcome-to-Memory Promotion v1.
-The next release must exclude it before ranking and bind the second watch to a
-real `release_id`.
+The next release excludes it and is frozen as
+`recommendation-6852bacab2c7499e0a8c` from merge commit `72791d4`. Its slate is
+The Dark and the Wicked, Possum, The Empty Man, A Dark Song, and Saint Maud. The
+second watch must use this release's submission template so formal
+Recommendation Trust begins from a real `release_id`.
 
 ## Later intelligence phases
 
