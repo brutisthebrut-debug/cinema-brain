@@ -7,6 +7,8 @@ This file is the execution companion to `docs/ROADMAP.md`. The roadmap defines p
 ## Canonical project references
 
 - `docs/ROADMAP.md` — product and engineering sequence
+- `README.md` — operator quick start and cross-agent resume point
+- `docs/BRAIN_RELEASES.md` — current release milestone and dependency sequence
 - `docs/VISION.md` — Daniel OS destination and Cinema Brain's role as reference implementation
 - `docs/FOUNDING_PRINCIPLES.md` — permanent doctrine and architecture fitness checks
 - `docs/ROADMAP_GOVERNANCE.md` — definitions of done and roadmap standards
@@ -71,26 +73,19 @@ Validated outcomes:
 - the completed nine-film review worksheet is stored on `review/golden-horror-v1-approvals`
 - the guarded candidate workflow successfully compiled decisions and generated the promotion artifact
 
-## Immediate release task — finish Golden Horror v2
+## Brain v0.1 and v0.2 — complete foundations
 
-The candidate workflow has succeeded, but the generated candidate is not considered released truth until it is committed, validated in a normal pull request, and merged.
+The Golden Horror release, Canonical Trait Model v1, reviewed authoring workflow,
+nine canonical horror profiles, and Personal Taste Graph are complete on `main`.
+Calibration evidence remains an ongoing input, but no unfinished Golden Horror v2
+release blocks current production.
 
-Definition of done:
+## Brain v0.3 — active recommendation validation
 
-1. Retrieve the successful candidate artifact.
-2. Verify its integrity manifest and source-to-candidate patch.
-3. Commit the promoted benchmark and decision packet on a release branch.
-4. Run candidate validation and reviewed-benchmark regression in CI.
-5. Merge the release PR.
-6. Record the release in `docs/RELEASE_NOTES.md`.
+The active goal is to measure a real frozen recommendation against Daniel's actual
+reaction without allowing the outcome to rewrite its prediction.
 
-This is the final closure task for Metadata Intelligence Phase 1, not a new infrastructure epic.
-
-## Active epic — Intelligence Graph / Canonical Trait Authoring
-
-The active goal is to move from trustworthy identity and metadata into trustworthy meaning.
-
-### Milestone 1 — Canonical Trait Model v1
+### Completed — Canonical Trait Model v1
 
 Design a bounded, reviewed vocabulary covering:
 
@@ -114,7 +109,7 @@ Definition of done:
 - the nine approved horror films have complete reviewed profiles
 - the v1 vocabulary is frozen before recommendation work depends on it
 
-### Milestone 2 — Trait Authoring Pipeline
+### Completed — Trait Authoring Pipeline
 
 ```text
 Film facts and Evidence
@@ -135,7 +130,7 @@ Definition of done:
 - negative and contradictory traits remain representable
 - later taxonomy changes cannot silently rewrite historical profiles
 
-### Milestone 3 — Taste Intelligence v1
+### Completed — Taste Intelligence v1
 
 Build Daniel's taste vector only after reviewed film traits exist.
 
@@ -155,7 +150,7 @@ Definition of done:
 - low-evidence traits remain explicitly uncertain
 - profile regeneration is deterministic
 
-### Milestone 4 — Explainable Recommendation Engine v1
+### Completed through outcome capture — Explainable Recommendation Engine v1
 
 Every recommendation must answer:
 
@@ -173,7 +168,7 @@ Definition of done:
 - predictions, confidence, and explanations are frozen before outcomes are known
 - the first live recommendations are evaluated against Daniel's actual reactions
 
-### Milestone 5 — Horror benchmark expansion
+### Next evidence-gated milestone — Horror benchmark expansion
 
 Expand deliberately rather than opening multiple genre fronts:
 
@@ -229,11 +224,15 @@ These ideas remain valid future options, but they do not belong in the active se
 
 ## Current execution order
 
-1. Finish and merge the Golden Horror v2 release candidate.
-2. Define Canonical Trait Model v1.
-3. Author and promote reviewed trait profiles for the nine horror films.
-4. Build Taste Intelligence v1 from canonical traits and durable Evidence.
-5. Build the first explainable recommendation run.
-6. Expand the reviewed horror benchmark to 25 and then 50 films based on measured gaps.
+1. Preserve the merged Brain v0.1 canonical horror truth.
+2. Preserve the merged Brain v0.2 Personal Taste Graph and calibration contracts.
+3. Preserve Brain v0.3's corpus, raw ranker, and balanced slate through PR #60.
+4. Preserve Recommendation Release Gates v1, Recommendation Audit v1, and the
+   read-only Brain Health Dashboard through PRs #61–#63.
+5. Preserve Post-watch Outcome Capture v1 through PR #64.
+6. Capture and review the first real outcome and any regression fixture.
+7. Expand the reviewed horror benchmark to 25 and then 50 only when measured gaps
+   from real outcomes justify the added films.
 
-No additional provider, workflow-governance, interface, or social work should interrupt this sequence unless a real failure blocks it.
+No additional provider, workflow-governance, interface, or social work should
+interrupt this sequence unless a real failure blocks it.
