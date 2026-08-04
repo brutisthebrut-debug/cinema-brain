@@ -131,6 +131,7 @@ def _bool(value: str) -> int:
 
 
 def _slug(value: str) -> str:
+    value = value.replace("'", "").replace("\u2019", "")
     value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
